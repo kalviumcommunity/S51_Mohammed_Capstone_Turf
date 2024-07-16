@@ -5,6 +5,6 @@ const client = new Client()
   .setProject(import.meta.env.VITE_APPWRITE_ID);
 
 export const account = new Account(client);
-export { client }; // Exporting the client separately
+export { client };
 
-export default { client }; // Exporting an object with `client` as a property (optional)
+export default { client };
