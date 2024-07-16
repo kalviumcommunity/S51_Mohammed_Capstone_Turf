@@ -22,7 +22,7 @@ const Start = () => {
           </NavLink>
         </nav>
       </header>
-      <main className="container mx-auto px-4 py-16 flex flex-col items-center space-y-8">
+      {/* <main className="container mx-auto px-4 py-16 flex flex-col items-center space-y-8">
         <h2 className="text-4xl font-bold text-white">Unleash Your Inner Athlete - Book Your Perfect Turf Today!</h2>
         <p className="text-xl text-gray-200 text-center max-w-md">
           Welcome to the premier online platform for booking your next turf adventure! We're passionate about connecting you with a diverse range of high-quality sports facilities, catering to a variety of athletic pursuits. Whether you're a seasoned athlete seeking to refine your skills or a fitness enthusiast looking to break a sweat with friends, we have the perfect turf for you.
@@ -42,7 +42,7 @@ const Start = () => {
           <li>**Stress Relief & Mental Wellbeing:** Exercise is a natural stress reliever, promoting relaxation and improving mood. Engaging in sports allows you to clear your head and find joy in physical activity.</li>
           <li>**Fun & Social Interaction:** Sports provide a platform for connecting with friends, colleagues, or even new people who share your passion. It's a fantastic way to</li>
         </ul>
-      </main>
+      </main> */}
     </div>
   )
 }

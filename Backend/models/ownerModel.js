@@ -1,10 +1,10 @@
-const mongoose = require('mongoose');
+// const mongoose = require('mongoose');
 
-const ownerSchema = new mongoose.Schema({
-    name:String,
-    location:String
-})
+// const ownerSchema = new mongoose.Schema({
+//     name:String,
+//     location:String
+// })
 
-const owner = mongoose.model('owner', ownerSchema)
+// const owner = mongoose.model('owner', ownerSchema)
 
-module.exports = owner;
+// module.exports = owner;
