@@ -1,42 +1,54 @@
-import { Route, Routes } from 'react-router-dom'
-import './App.css'
-import { ToastContainer } from 'react-toastify'
-import Start from './components/StartPage/Start'
-import Signup from './components/Signup'
-import Login from './components/Login'
-import Home from './components/HomePage/Home'
-import PrivateRoute from './components/PrivateRoute'
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import UserForm from './components/UserForm'
+import Start from './components/StartPage/Start';
+import Signup from './components/Signup';
+import Login from './components/Login';
+import PrivateRoute from './components/PrivateRoute';
+import UserHome from './components/UserComponents/UserHome';
+import OwnerHome from './components/OwnerComponents/OwnerHome';
+import GoogleAuth from './components/GoogleAuth';
+import Logout from './components/Logout';
+import { UserProvider } from './components/UserProvider';
 
 function App() {
   return (
-    <>
-    <Routes>
-      <Route path='/' element={<Start/>}/>
-      <Route path='/Signup' element={<Signup/>}/>
-      <Route path='/login' element={<Login/>}/>
-      {/* Private route */}
-      <Route element={<PrivateRoute/>}>
-        <Route path='/userform' element={<UserForm/>}/>
-        <Route path='/home' element={<Home/>}/>
-      </Route>
+    <UserProvider>
 
-    </Routes>
-    <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        draggable
-        pauseOnHover
-        theme="light"
-      />
-      
-    </>
-  )
+      <div className="App">
+          <ToastContainer />
+          <Routes>
+            <Route path="/" element={<Start />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/logout" element={<Logout />} />
+            <Route path="/googleAuth" element={<GoogleAuth />} />
+
+            {/* Private routes */}
+            <Route 
+              path="/userHome" 
+              element={<PrivateRoute><UserHome /></PrivateRoute>} 
+            />
+            <Route 
+              path="/ownerHome" 
+              element={<PrivateRoute><OwnerHome /></PrivateRoute>} 
+            />
+          </Routes>
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          draggable
+          pauseOnHover
+          theme="light"
+        />
+      </div>
+    </UserProvider>
+  );
 }
 
-export default App
+export default App;

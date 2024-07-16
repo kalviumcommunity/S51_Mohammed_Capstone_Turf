@@ -15,8 +15,6 @@ const Home = () => {
   return (
     <div>
       <button onClick={handleLogout} className="relative inline-flex items-center px-4 py-2 rounded-full hover:bg-indigo-700 hover:text-white transition duration-300 ease-in-out">Logout</button>
-
-     
     </div>
   );
 };

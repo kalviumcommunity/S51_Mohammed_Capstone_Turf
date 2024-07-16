@@ -1,43 +1,37 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { NavLink, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { toast } from 'react-toastify';
-import { useContext, createContext } from 'react';
+import GoogleAuth from './GoogleAuth';
+import Cookies from 'js-cookie';
+import { useAuth } from './UserProvider';
 
 
 const Signup = () => {
   const { register, handleSubmit, formState: { errors } } = useForm();
-  const [user,setUser] = useState()
   const navigate = useNavigate();
 
-  const [errorMessage, setErrorMessage] = useState('')
+  const {user, signupUser} = useAuth()
+  const signupForm = useRef(null)
+
+  useEffect(() => {
+    if(user){
+      navigate('/logout')
+  }
+  })
 
   const onSubmit = async (data) => {
-    try {
-      const response = await axios.post('http://localhost:3000/signup', data);
-      localStorage.setItem("token", response.data.token)
-      setUser(response.data.email)
-      console.log(user)
-      navigate('/userform');
-      toast.success('Signup successful');
-    } catch (error) {
-      if (error.response && error.response.data.message.includes('already exists')) {
-        setErrorMessage('Email is already registered');
-      } else {
-        setErrorMessage('Signup failed');
-      }
-      console.log("Signup error", error.message);
-      toast.error({errorMessage});
-    }
+    const email = data.email
+    const password = data.password
+    const userInfo = {email, password}
+    signupUser(userInfo)
+
   };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
       <div className="bg-white p-8 rounded shadow-md w-full max-w-md">
         <h2 className="text-2xl font-bold mb-6 text-center">Sign Up</h2>
-        {errorMessage && <p className="text-red-600 mb-4">{errorMessage}</p>}
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form ref={signupForm} onSubmit={handleSubmit(onSubmit)}>
           <div className="mb-4">
             <label htmlFor="email" className="block text-gray-700">Email</label>
             <input
@@ -79,10 +73,13 @@ const Signup = () => {
             Submit
           </button>
         </form>
+        <div className="mt-4 text-center">
+          <GoogleAuth />
+        </div>
         <NavLink to="/login" className="block text-center text-blue-500 mt-4">Already a user? Login</NavLink>
       </div>
     </div>
   );
-}
+};
 
 export default Signup;
