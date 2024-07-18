@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
+import { useDropzone } from 'react-dropzone';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import axios from 'axios';
 
 const OwnerHome = () => {
-  const location = useLocation();
-  const { name, userLocation } = location.state || {};
   const { register, handleSubmit, formState: { errors } } = useForm();
+
+  const navigate = useNavigate()
 
   const [thumbnail, setThumbnail] = useState(null);
   const [thumbnailPreview, setThumbnailPreview] = useState(null);
@@ -20,10 +22,26 @@ const OwnerHome = () => {
     }
   };
 
-  const onImagesDrop = (acceptedFiles) => {
-    setImages(acceptedFiles);
-    const previews = acceptedFiles.map(file => URL.createObjectURL(file));
-    setImagePreviews(previews);
+   const onImagesDrop = (acceptedFiles) => {
+    const newImages = acceptedFiles.map(file => file);
+    const newPreviews = acceptedFiles.map(file => URL.createObjectURL(file));
+
+    setImages(prevImages => [...prevImages, ...newImages]);
+    setImagePreviews(prevPreviews => [...prevPreviews, ...newPreviews]);
+  };
+
+  const removeThumbnail = () => {
+    setThumbnail(null);
+    setThumbnailPreview(null);
+  };
+
+  const removeImage = (index) => {
+    const newImages = [...images];
+    const newImagePreviews = [...imagePreviews];
+    newImages.splice(index, 1);
+    newImagePreviews.splice(index, 1);
+    setImages(newImages);
+    setImagePreviews(newImagePreviews);
   };
 
   const { getRootProps: getThumbnailRootProps, getInputProps: getThumbnailInputProps } = useDropzone({ onDrop: onThumbnailDrop });
@@ -36,16 +54,50 @@ const OwnerHome = () => {
     };
   }, [thumbnailPreview, imagePreviews]);
 
+  const onSubmit = async (data) => {
+    const formData = new FormData();
+    formData.append('turfName', data.turfName);
+    formData.append('turfDescription', data.turfDescription);
+    formData.append('ownerContact', data.ownerContact);
+    formData.append('address', data.address);
+    formData.append('turfDistrict', data.turfDistrict);
+    formData.append('turfTimings', data.turfTimings);
+    formData.append('turfThumbnail', thumbnail);
+    formData.append('turfSportcategory', data.turfSportCategory);
+    formData.append('turfPrice', data.turfPrice);
+    images.forEach((image, index) => {
+      formData.append('turfImages', image);
+    });
+
+    try {
+      await axios.post('http://localhost:3000/api/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      toast.success('turf Uploaded Successfully');
+      navigate('/userHome')
+    } catch (error) {
+      console.error('Error uploading turf information and images:', error);
+      toast.error('Error uploading your turf');
+    }
+  };
+
   return (
     <div className="bg-gray-100 min-h-screen py-6 flex flex-col items-center">
-      <form onSubmit={handleSubmit} className="bg-white shadow-lg rounded-lg p-8 w-full max-w-3xl">
+      <form onSubmit={handleSubmit(onSubmit)} className="bg-white shadow-lg rounded-lg p-8 w-full max-w-3xl">
         <h2 className="text-2xl font-bold mb-6 text-center">Upload Your Turf</h2>
 
         <div className="mb-4">
-          <label htmlFor="turfThumbNail" className="block text-gray-700 mb-2">Add your Turf Thumbnail image:</label>
+          <label htmlFor="turfThumbnail" className="block text-gray-700 mb-2">Add your Turf Thumbnail image:</label>
           <div className="border border-dashed border-gray-400 p-4 rounded-lg bg-gray-50 text-center">
             {thumbnailPreview ? (
-              <img src={thumbnailPreview} alt="Thumbnail" className="max-w-full h-auto mx-auto" style={{ maxWidth: '300px', maxHeight: '300px' }} />
+              <div>
+                <img src={thumbnailPreview} alt="Thumbnail" className="max-w-full h-auto mx-auto" style={{ maxWidth: '300px', maxHeight: '300px' }} />
+                <button type="button" onClick={removeThumbnail} className="mt-2 px-4 py-2 bg-red-600 text-white rounded-lg">
+                  Remove Thumbnail
+                </button>
+              </div>
             ) : (
               <div {...getThumbnailRootProps({ className: 'dropzone' })}>
                 <input {...getThumbnailInputProps()} />
@@ -65,7 +117,12 @@ const OwnerHome = () => {
             <ul className="flex flex-wrap justify-center gap-4">
               {imagePreviews.map((preview, index) => (
                 <li key={index}>
-                  <img src={preview} alt={`Turf ${index + 1}`} className="max-w-full h-auto mx-auto" style={{ maxWidth: '300px', maxHeight: '300px' }} />
+                  <div className="relative">
+                    <img src={preview} alt={`Turf ${index + 1}`} className="max-w-full h-auto mx-auto" style={{ maxWidth: '300px', maxHeight: '300px' }} />
+                    <button type="button" onClick={() => removeImage(index)} className="absolute top-0 right-0 mt-2 mr-2 px-2 py-1 bg-red-600 text-white rounded-lg">
+                      Remove
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -77,7 +134,6 @@ const OwnerHome = () => {
           <input
             type="text"
             id="turfName"
-            placeholder="Optional"
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             {...register('turfName', {
               required: "Name is necessary",
@@ -95,7 +151,6 @@ const OwnerHome = () => {
           <input
             type="text"
             id="turfDescription"
-            placeholder="Optional"
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             {...register('turfDescription', {
               maxLength: {
@@ -112,7 +167,6 @@ const OwnerHome = () => {
           <input
             type="text"
             id="ownerContact"
-            placeholder="Optional"
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             {...register('ownerContact', {
               required: "Contact is necessary",
@@ -130,7 +184,6 @@ const OwnerHome = () => {
           <input
             type="text"
             id="address"
-            placeholder="Optional"
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             {...register('address', {
               required: "Address is necessary",
@@ -168,6 +221,39 @@ const OwnerHome = () => {
               required: 'Set timings'
             })}
           />
+        </div>
+
+        <div className="mb-4">
+          <label htmlFor="turfPrice" className="block text-gray-700 mb-2">Type in your turf price per hour:</label>
+          <input
+            type="text"
+            id="turfPrice"
+            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            {...register('turfPrice', {
+              required: "Price is required",
+              maxLength: {
+                value: 3,
+                message: "Do not exceed more than 4 characters"
+              }
+            })}
+          />
+          {errors.turfPrice && <p className="text-red-500">{errors.turfPrice.message}</p>}
+        </div>
+
+        <div className="mb-4">
+          <label htmlFor="turfSportCategory" className="block text-gray-700 mb-2">Select the district of your turf:</label>
+          <select
+            id="turfSportCategory"
+            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            {...register('turfSportCategory', { required: 'category is mandatory' })}
+          >
+            <option value="" disabled>Select one</option>
+            <option value="Football">Foot ball</option>
+            <option value="badmitton">Badmitton</option>
+            <option value="Cricket">Cricket</option>
+            <option value="Basketball">Basket ball</option>
+          </select>
+          {errors.turfSportCategory && <p className="text-red-500">{errors.turfSportCategory.message}</p>}
         </div>
 
         <button type="submit" className="w-full py-3 mt-4 bg-green-600 hover:bg-green-700 text-white rounded-lg">

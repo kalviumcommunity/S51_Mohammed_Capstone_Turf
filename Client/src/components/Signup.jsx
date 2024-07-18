@@ -13,11 +13,11 @@ const Signup = () => {
   const {user, signupUser} = useAuth()
   const signupForm = useRef(null)
 
-  useEffect(() => {
-    if(user){
-      navigate('/logout')
-  }
-  })
+  // useEffect(() => {
+  //   if(user){
+  //     navigate('/logout')
+  // }
+  // })
 
   const onSubmit = async (data) => {
     const email = data.email

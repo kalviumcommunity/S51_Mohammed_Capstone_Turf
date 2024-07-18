@@ -1,59 +1,62 @@
-// // routes/appRoutes.js
-// const express = require('express');
-// const jwt = require('jsonwebtoken');
-// require('dotenv').config();
+const express = require('express');
+const multer = require('multer');
+const TurfUpload = require('../models/turfModel');
 
-// const router = express.Router();
+const router = express.Router();
+const storage = multer.memoryStorage();
+const upload = multer({ 
+  storage: storage,
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only image files are allowed.'), false);
+    }
+  }
+});
 
-// const JWT_SECRET = process.env.JWT_SECRET;
+router.post('/upload', upload.fields([
+  { name: 'turfThumbnail', maxCount: 1 },
+  { name: 'turfImages', maxCount: 10 } 
+]), async (req, res) => {
+  const { turfName, turfDescription, ownerContact, address, turfDistrict, turfTimings, turfSportcategory, turfPrice } = req.body;
+  
+  let turfThumbnail = null;
+  let turfImages = [];
 
-// // router.post('/userdetails', async (req, res) => {
-// //   try {
-// //     const { name, location } = req.body;
-    
-// //     const newUser = new user({
-// //       name,
-// //       location
-// //     });
+  if (req.files['turfThumbnail'] && req.files['turfThumbnail'][0]) {
+    turfThumbnail = {
+      data: req.files['turfThumbnail'][0].buffer,
+      contentType: req.files['turfThumbnail'][0].mimetype,
+    };
+  }
 
-// //     await newUser.save();
-// //     res.status(200).json({ user: newUser });
-// //   } catch (error) {
-// //     console.error("Error saving user:", error);
-// //     res.status(500).json({ error: 'Failed to save user' });
-// //   }
-// // });
+  if (req.files['turfImages']) {
+    turfImages = req.files['turfImages'].map(file => ({
+      data: file.buffer,
+      contentType: file.mimetype
+    }));
+  }
 
-// // router.post('/ownerdetails', async (req, res) => {
-// //   const { name, location } = req.body;
-// //   try {
-// //     const newOwner = new owner({
-// //       name,
-// //       location
-// //     });
-// //     await newOwner.save();
-// //     res.status(200).json({ owner: newOwner });
-// //   } catch (error) {
-// //     console.error("Error saving owner:", error);
-// //     res.status(500).json({ error: 'Failed to save owner' });
-// //   }
-// // });
+  const newTurf = new TurfUpload({
+    turfThumbnail,
+    turfImages,
+    turfName,
+    turfDescription,
+    ownerContact,
+    address,
+    turfDistrict,
+    turfTimings,
+    turfSportcategory,
+    turfPrice,
+  });
 
-// // const authenticateToken = (req, res, next) => {
-// //   const token = req.header('Authorization')?.split(' ')[1];
-// //   if (!token) return res.sendStatus(401);
+  try {
+    await newTurf.save();
+    res.status(200).send('Turf information and images saved successfully.');
+  } catch (error) {
+    res.status(500).send('Error saving turf information and images.');
+  }
+});
 
-// //   jwt.verify(token, JWT_SECRET, (err, user) => {
-// //     if (err) return res.sendStatus(403);
-// //     req.user = user;
-// //     next();
-// //   });
-// // };
-
-// // router.get('/protected', authenticateToken, (req, res) => {
-// //   res.status(200).json({ message: 'This is a protected route' });
-// // });
-
-// // router.post
-
-// module.exports = router;
+module.exports = router;

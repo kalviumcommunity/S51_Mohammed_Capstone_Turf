@@ -1,17 +1,26 @@
-import React from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useAuth } from '../UserProvider';
 import { NavLink } from 'react-router-dom';
 
 const UserHome = () => {
-  const location = useLocation();
-  const { name, userLocation } = location.state || {};
+  const { logoutUser, checkUserStatus, user } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await checkUserStatus();
+      await logoutUser();
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      <nav className="w-72 bg-white p-6 shadow-md">
-        <div className="mb-8">
+    <div className="flex min-h-screen bg-black text-white">
+      <nav className="w-72 bg-black p-6 shadow-md">
+        <div className="mb-8 bg-black" >
           <button className="w-full py-4 px-4 text-left text-lg hover:bg-gray-200">Home</button>
           <button className="w-full py-4 px-4 text-left text-lg hover:bg-gray-200">About</button>
+          <button onClick={handleLogout} className="w-full py-4 px-4 text-left text-lg hover:bg-gray-200">Logout</button>
           <NavLink to="/ownerHome">
             <button className="w-full py-4 px-4 text-left text-lg hover:bg-gray-200">Upload your turf</button>
           </NavLink>
@@ -30,7 +39,6 @@ const UserHome = () => {
         </div>
         <div className="flex justify-center">
           <div className="bg-white p-8 rounded shadow-md w-full max-w-4xl">
-            {/* Your content goes here */}
           </div>
         </div>
       </div>
