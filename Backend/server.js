@@ -2,11 +2,11 @@ const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const connectDB = require('./dbConfig'); 
-// const appwriteRoutes = require('./routes/appwriteRoutes');
-// const appRoutes = require('./routes/appRoutes');
+const appRoutes = require('./routes/appRoutes');
 
 const port = 3000;
 const app = express();
+
 
 app.use(cors({
     origin: 'http://localhost:5173', 
@@ -14,11 +14,11 @@ app.use(cors({
 }));
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use('/api', appRoutes)
 
-// Use separated routes
-// app.use('/api/appwrite', appwriteRoutes);
-// app.use('/api', appRoutes);
+
 
 app.get('/ping', (req, res) => {
     res.send('pong');
