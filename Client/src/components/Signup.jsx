@@ -10,14 +10,26 @@ const Signup = () => {
   const { register, handleSubmit, formState: { errors } } = useForm();
   const navigate = useNavigate();
 
-  const {user, signupUser} = useAuth()
   const signupForm = useRef(null)
+  const { logoutUser, checkUserStatus, user, signupUser } = useAuth();
 
-  // useEffect(() => {
-  //   if(user){
-  //     navigate('/logout')
-  // }
-  // })
+
+  useEffect( () => {
+    const checkUsersStatus = async()=>{
+      if(user){
+        try {
+          await checkUserStatus();
+          await logoutUser();
+          Cookies.remove('email')
+          navigate('/signup')
+        } catch (error) {
+          console.log(error);
+        }
+    }
+    navigate('/signup')
+  }
+  checkUsersStatus()
+})
 
   const onSubmit = async (data) => {
     const email = data.email

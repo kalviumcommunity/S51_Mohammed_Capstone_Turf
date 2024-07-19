@@ -3,7 +3,7 @@ import { useAuth } from '../UserProvider';
 import { NavLink } from 'react-router-dom';
 
 const UserHome = () => {
-  const { logoutUser, checkUserStatus, user } = useAuth();
+  const { logoutUser, checkUserStatus } = useAuth();
 
   const handleLogout = async () => {
     try {
@@ -23,6 +23,9 @@ const UserHome = () => {
           <button onClick={handleLogout} className="w-full py-4 px-4 text-left text-lg hover:bg-gray-200">Logout</button>
           <NavLink to="/ownerHome">
             <button className="w-full py-4 px-4 text-left text-lg hover:bg-gray-200">Upload your turf</button>
+          </NavLink>
+          <NavLink to="/yourturf">
+            <button className="w-full py-4 px-4 text-left text-lg hover:bg-gray-200">Your turfs</button>
           </NavLink>
           <button className="w-full py-4 px-4 text-left text-lg hover:bg-gray-200">Feedback</button>
           <button className="w-full py-4 px-4 text-left text-lg hover:bg-gray-200">Chat AI</button>

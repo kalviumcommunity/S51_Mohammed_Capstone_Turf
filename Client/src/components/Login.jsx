@@ -32,7 +32,7 @@ const Login = () => {
         <div className="flex justify-center items-center min-h-screen bg-gray-100">
         <div className="bg-white p-8 rounded shadow-md w-full max-w-md">
             <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
-            <form ref={loginForm} onSubmit={handleSubmit(onSubmit)}>
+            <form onSubmit={handleSubmit(onSubmit)}>
             <div className="mb-4">
                 <label htmlFor="email" className="block text-gray-700">Email</label>
                 <input

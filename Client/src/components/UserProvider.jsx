@@ -1,14 +1,14 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { account } from './appwriteConfig';
-import { ID } from 'appwrite';
-import { toast } from 'react-toastify';
+import { account } from './appwriteConfig'; 
+import { ID } from 'appwrite'; 
+import { toast } from 'react-toastify'; 
 import { useNavigate } from 'react-router-dom';
-import Cookies from 'js-cookie';
+import Cookies from 'js-cookie'; 
 
 const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
@@ -24,7 +24,7 @@ export const UserProvider = ({ children }) => {
       setUser(accountDetails);
       Cookies.set('email', userInfo.email);
       toast.success("Login successful");
-      navigate('/userHome'); 
+      navigate('/userHome');
     } catch (error) {
       console.log("Login failed", error.message);
       toast.error("Login failed");
@@ -41,7 +41,7 @@ export const UserProvider = ({ children }) => {
 
     try {
       await account.deleteSession('current');
-      setUser(false);
+      setUser(null);
       Cookies.remove('email');
       toast.success("Logout successful");
       navigate('/');
@@ -68,7 +68,7 @@ export const UserProvider = ({ children }) => {
       setUser(accountDetails);
       Cookies.set('email', userInfo.email);
       toast.success("Signup successful");
-      navigate('/userHome'); 
+      navigate('/userHome');
     } catch (error) {
       console.log("Signup failed", error.message);
       toast.error(error.message);
@@ -92,7 +92,7 @@ export const UserProvider = ({ children }) => {
     loginUser,
     logoutUser,
     signupUser,
-    checkUserStatus
+    checkUserStatus,
   };
 
   return (
