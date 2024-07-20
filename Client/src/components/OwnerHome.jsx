@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { useDropzone } from 'react-dropzone';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import Cookies from 'js-cookie'
 import axios from 'axios';
 
 const OwnerHome = () => {
@@ -64,6 +65,8 @@ const OwnerHome = () => {
   }, [thumbnailPreview, imagePreviews]);
 
   const onSubmit = async (data) => {
+    data.userID = Cookies.get("userID");
+    console.log("userID from Cookies:", data.userID); // Debugging log
     const formData = new FormData();
     formData.append('turfName', data.turfName);
     formData.append('turfDescription', data.turfDescription);
@@ -71,31 +74,31 @@ const OwnerHome = () => {
     formData.append('address', data.address);
     formData.append('turfDistrict', data.turfDistrict);
     formData.append('turfTimings', data.turfTimings);
-
     if (thumbnail) {
-      formData.append('turfThumbnail', thumbnail);
+        formData.append('turfThumbnail', thumbnail);
     }
-
     images.forEach((image, index) => {
-      formData.append('turfImages', image);
+        formData.append('turfImages', image);
     });
-
     formData.append('turfSportCategory', data.turfSportCategory);
     formData.append('turfPrice', data.turfPrice);
+    formData.append('userID', data.userID); 
+    console.log("FormData entries:", Array.from(formData.entries()));
 
     try {
-      await axios.post('http://localhost:3000/api/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      toast.success('Turf Uploaded Successfully');
-      navigate('/userHome');
+        await axios.post('http://localhost:3000/api/upload', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        toast.success('Turf Uploaded Successfully');
+        navigate('/userHome');
     } catch (error) {
-      console.error('Error uploading turf information and images:', error);
-      toast.error('Error uploading your turf');
+        console.error('Error uploading turf information and images:', error);
+        toast.error('Error uploading your turf');
     }
-  };
+};
+
 
   return (
     <div className="bg-gray-100 min-h-screen py-6 flex flex-col items-center">
@@ -154,7 +157,7 @@ const OwnerHome = () => {
             {...register('turfName', {
               required: "Name is necessary",
               maxLength: {
-                value: 10,
+                value: 20,
                 message: "Do not exceed more than 10 characters"
               }
             })}
@@ -163,15 +166,19 @@ const OwnerHome = () => {
         </div>
 
         <div className="mb-4">
-          <label htmlFor="turfDescription" className="block text-gray-700 mb-2">Type in your turf intro:</label>
+          <label htmlFor="turfDescription" className="block text-gray-700 mb-2">Type in your turf intro</label>
           <input
             type="text"
             id="turfDescription"
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             {...register('turfDescription', {
+              minLength: {
+                value: 4,
+                message: "Must be atleast 4 characters"
+              },
               maxLength: {
-                value: 20,
-                message: "Do not exceed more than 20 characters"
+                value: 100,
+                message: "Do not exceed more than 100 characters"
               }
             })}
           />

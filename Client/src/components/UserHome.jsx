@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useAuth } from '../UserProvider';
+import { useAuth } from './UserProvider';
 import { NavLink } from 'react-router-dom';
 
 const UserHome = () => {

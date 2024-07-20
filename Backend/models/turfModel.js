@@ -16,7 +16,9 @@ const turfUploadSchama = new mongoose.Schema({
     turfDistrict:String,
     turfTimings:Number,
     turfSportcategory:String,
-    turfPrice:Number
+    turfPrice:Number,
+    userID:String
+
 })
 
 const turfUpload = mongoose.model('turfUpload', turfUploadSchama)

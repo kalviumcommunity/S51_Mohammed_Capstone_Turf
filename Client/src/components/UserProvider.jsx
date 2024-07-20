@@ -21,6 +21,8 @@ export const UserProvider = ({ children }) => {
     try {
       await account.createEmailPasswordSession(userInfo.email, userInfo.password);
       const accountDetails = await account.get();
+      Cookies.set('userID', accountDetails.$id)
+      console.log(accountDetails.$id)
       setUser(accountDetails);
       Cookies.set('email', userInfo.email);
       toast.success("Login successful");
@@ -43,6 +45,7 @@ export const UserProvider = ({ children }) => {
       await account.deleteSession('current');
       setUser(null);
       Cookies.remove('email');
+      Cookies.remove('userID')
       toast.success("Logout successful");
       navigate('/');
     } catch (error) {
@@ -65,6 +68,8 @@ export const UserProvider = ({ children }) => {
       await account.create(ID.unique(), userInfo.email, userInfo.password);
       await account.createEmailPasswordSession(userInfo.email, userInfo.password);
       const accountDetails = await account.get();
+      console.log(accountDetails.$id,"accdetails")
+      Cookies.set('userID', accountDetails.$id)
       setUser(accountDetails);
       Cookies.set('email', userInfo.email);
       toast.success("Signup successful");

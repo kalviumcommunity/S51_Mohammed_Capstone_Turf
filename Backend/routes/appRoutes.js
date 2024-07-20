@@ -1,7 +1,8 @@
 const express = require('express');
 const multer = require('multer');
-const TurfUpload = require('../models/turfModel');
 const turfUploadValidator = require('../JOIvalidator');
+const turfUpload = require('../models/turfModel');
+
 
 const router = express.Router();
 const storage = multer.memoryStorage();
@@ -37,7 +38,7 @@ router.post('/upload', upload.fields([
       return res.status(400).json({ message: 'turfImages are required' });
     }
 
-    const { turfName, turfDescription, ownerContact, address, turfDistrict, turfTimings, turfSportCategory, turfPrice } = req.body;
+    const { turfName, turfDescription, ownerContact, address, turfDistrict, turfTimings, turfSportCategory, turfPrice, userID } = req.body;
 
     let turfThumbnail = null;
     let turfImages = [];
@@ -56,7 +57,7 @@ router.post('/upload', upload.fields([
       }));
     }
 
-    const newTurf = new TurfUpload({
+    const newTurf = new turfUpload({
       turfThumbnail,
       turfImages,
       turfName,
@@ -67,6 +68,7 @@ router.post('/upload', upload.fields([
       turfTimings,
       turfSportCategory,
       turfPrice,
+      userID
     });
 
     await newTurf.save();
@@ -89,5 +91,29 @@ router.use((err, req, res, next) => {
   }
   next(err);
 });
+
+router.get('/yourTurfs', async (req, res) => {
+  try {
+    const userID = req.cookies.userID;
+    console.log('Retrieved User ID from cookies:', userID);
+
+    if (!userID) {
+      return res.status(400).json({ message: 'User ID not found in cookies' });
+    }
+
+    const turfs = await turfUpload.find({ userID });
+    console.log('Found Turfs:', turfs);
+
+    if (turfs.length === 0) {
+      return res.status(200).json({ message: 'No turfs found for this user' });
+    }
+
+    res.json(turfs);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send('An error occurred while fetching the turfs');
+  }
+});
+
 
 module.exports = router;
