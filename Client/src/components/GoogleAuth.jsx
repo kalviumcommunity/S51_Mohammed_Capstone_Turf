@@ -14,9 +14,9 @@ const GoogleAuth = () => {
   const handleGoogleLogin = async () => {
     try{
       account.createOAuth2Session(
-        OAuthProvider.Google, // provider
-        'http://localhost:5173/userform', // redirect here on success
-        'http://localhost:5173/', // redirect here on failure
+        OAuthProvider.Google, 
+        'http://localhost:5173/userform', 
+        'http://localhost:5173/',
       );
     }
     catch(error){

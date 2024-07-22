@@ -5,9 +5,10 @@ import 'react-toastify/dist/ReactToastify.css';
 import Start from './components/StartPage/Start';
 import Signup from './components/Signup';
 import Login from './components/Login';
+import YourTurf from './components/YourTurf';
 import PrivateRoute from './components/PrivateRoute';
-import UserHome from './components/UserComponents/UserHome';
-import OwnerHome from './components/OwnerComponents/OwnerHome';
+import UserHome from './components/UserHome';
+import OwnerHome from './components/OwnerHome';
 import GoogleAuth from './components/GoogleAuth';
 import { UserProvider } from './components/UserProvider';
 
@@ -38,6 +39,15 @@ function App() {
                   <OwnerHome />
                 </PrivateRoute>
               }
+            />
+
+            <Route
+            path='/yourturf'
+            element={
+              <PrivateRoute>
+                <YourTurf/>
+              </PrivateRoute>
+            }
             />
           </Routes>
         <ToastContainer
