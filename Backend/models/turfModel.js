@@ -1,26 +1,19 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
-const turfUploadSchama = new mongoose.Schema({
-    turfThumbnail:{
-        data:Buffer,
-        contentType:String
-    },
-    turfImages:[{
-        data:Buffer,
-        contentType:String
-    }],
-    turfName : String,
-    turfDescription:String,
-    ownerContact:Number,
-    address:String,
-    turfDistrict:String,
-    turfTimings:Number,
-    turfSportcategory:String,
-    turfPrice:Number,
-    userID:String
+const turfUploadSchema = new mongoose.Schema({
+  turfThumbnail: String,
+  turfImages: [String],
+  turfName: String,
+  turfDescription: String,
+  ownerContact: Number,
+  address: String,
+  turfDistrict: String,
+  turfTimings: Number,
+  turfSportCategory: String,
+  turfPrice: Number,
+  userID: String
+});
 
-})
+const turfUpload = mongoose.model('turfUpload', turfUploadSchema);
 
-const turfUpload = mongoose.model('turfUpload', turfUploadSchama)
-
-module.exports = turfUpload
+module.exports = turfUpload;

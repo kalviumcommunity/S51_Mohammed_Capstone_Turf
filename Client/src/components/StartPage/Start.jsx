@@ -1,7 +1,25 @@
-import React from 'react'
+import React,{useEffect} from 'react'
 import { NavLink } from 'react-router-dom'
+import { useAuth } from '../UserProvider';
+import { useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie'
+import { toast } from 'react-toastify';
+
+
 
 const Start = () => {
+  const userEmail = Cookies.get('email')
+  const {user} = useAuth()
+  const navigate = useNavigate();
+
+
+  useEffect(() => {
+    // if(user){
+    //     navigate('/userHome')
+    //     toast.success(`Logged in as ${userEmail}`)
+    // }
+},[])
+
   return (
     <div className="min-h-screen bg-gradient-to-r from-indigo-500 to-purple-600">
       <header className="flex px-4 py-8 justify-between">

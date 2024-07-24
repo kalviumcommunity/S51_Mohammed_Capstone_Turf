@@ -19,6 +19,12 @@ export const UserProvider = ({ children }) => {
   const loginUser = async (userInfo) => {
     setLoading(true);
     try {
+      if (user){
+        await account.deleteSession('current');
+        setUser(null);
+        Cookies.remove('email');
+        Cookies.remove('userID')
+      }
       await account.createEmailPasswordSession(userInfo.email, userInfo.password);
       const accountDetails = await account.get();
       Cookies.set('userID', accountDetails.$id)
@@ -65,6 +71,12 @@ export const UserProvider = ({ children }) => {
   const signupUser = async (userInfo) => {
     setLoading(true);
     try {
+      if (user){
+        await account.deleteSession('current');
+        setUser(null);
+        Cookies.remove('email');
+        Cookies.remove('userID')
+      }
       await account.create(ID.unique(), userInfo.email, userInfo.password);
       await account.createEmailPasswordSession(userInfo.email, userInfo.password);
       const accountDetails = await account.get();
