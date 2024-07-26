@@ -1,6 +1,6 @@
 import React,{useEffect} from 'react'
 import { NavLink } from 'react-router-dom'
-import { useAuth } from '../UserProvider';
+import { useAuth } from './UserProvider';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie'
 import { toast } from 'react-toastify';

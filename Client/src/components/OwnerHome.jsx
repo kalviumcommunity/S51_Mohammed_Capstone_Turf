@@ -162,8 +162,12 @@ const OwnerHome = () => {
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             {...register('turfName', {
               required: "Name is necessary",
+              minLength:{
+                value:4,
+                message:"Atleast 4 letters"
+              },
               maxLength: {
-                value: 20,
+                value: 30,
                 message: "Do not exceed more than 10 characters"
               }
             })}
@@ -194,7 +198,7 @@ const OwnerHome = () => {
         <div className="mb-4">
           <label htmlFor="ownerContact" className="block text-gray-700 mb-2">Add your contact No:</label>
           <input
-            type="text"
+            type="number"
             id="ownerContact"
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             {...register('ownerContact', {
@@ -217,7 +221,7 @@ const OwnerHome = () => {
             {...register('address', {
               required: "Address is necessary",
               maxLength: {
-                value: 30,
+                value: 99,
                 message: "Do not exceed more than 30 characters"
               }
             })}

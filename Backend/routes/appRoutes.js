@@ -67,7 +67,7 @@ router.get('/yourTurfs', async (req, res) => {
 
 //////////////////
 
-router.patch('/updateTurfData', async (req,res)=>{
+router.put('/updateTurfData', async (req,res)=>{
   try {
     const userID = req.cookies.userID;
     console.log("userId cookie fetched", userID)
@@ -81,6 +81,24 @@ router.patch('/updateTurfData', async (req,res)=>{
   } catch (error) {
     console.error('PATCH error', error);
     res.status(500).json({ error: 'Internal Server Error' });  }
+})
+
+/////////////////// 
+
+router.get('/getAllTurfs', async(req, res)=>{
+  try {
+    const allTurfs = await turfUpload.find()
+    console.log(allTurfs)
+    if (allTurfs.length === 0) {
+      return res.status(404).json({ message: "No details found" });
+    }
+    res.status(200).json(allTurfs);
+
+  } catch (error) {
+    console.log(error.message)
+    res.status(500).json({ error: "Internal Server Error" });
+
+  }
 })
 
 

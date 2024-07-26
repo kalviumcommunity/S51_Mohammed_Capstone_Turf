@@ -85,7 +85,7 @@ const UpdateTurfData = () => {
     try {
       data.turfImages = turfImagesURL;
       data.turfThumbnail = thumbnailURL;
-      const response = await axios.patch(
+      const response = await axios.put(
         'http://localhost:3000/api/updateTurfData',
         data,
         { withCredentials: true }
