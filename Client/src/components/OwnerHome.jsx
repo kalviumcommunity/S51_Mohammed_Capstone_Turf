@@ -3,101 +3,106 @@ import { useForm } from 'react-hook-form';
 import { useDropzone } from 'react-dropzone';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import {getStorage, ref, uploadBytes, getDownloadURL} from 'firebase/storage'
+import app from './firebase'
 import Cookies from 'js-cookie'
 import axios from 'axios';
 
 const OwnerHome = () => {
   const { register, handleSubmit, formState: { errors } } = useForm();
   const navigate = useNavigate();
-  const [thumbnail, setThumbnail] = useState(null);
-  const [thumbnailPreview, setThumbnailPreview] = useState(null);
-  const [images, setImages] = useState([]);
-  const [imagePreviews, setImagePreviews] = useState([]);
+
+  const [thumbnailURL, setThumbnailURL] = useState(null);
+  const [turfImagesURL, setTurfImages] = useState([])
   const [isImagesDropZoneVisible, setIsImagesDropZoneVisible] = useState(true);
 
-  const onThumbnailDrop = (acceptedFiles) => {
-    if (acceptedFiles.length > 0) {
-      setThumbnail(acceptedFiles[0]);
-      setThumbnailPreview(URL.createObjectURL(acceptedFiles[0]));
+  const onThumbnailDrop = async (acceptedFiles) => {
+    try {
+      console.log(acceptedFiles[0])
+      const thumbnail = acceptedFiles[0]
+      if (thumbnail){
+        const storage = getStorage(app)
+        const storageref = ref(storage, `thumbnails/${thumbnail.name}`);
+        await uploadBytes(storageref, thumbnail)
+        const downloadURL = await getDownloadURL(storageref)
+        console.log(downloadURL)
+        setThumbnailURL(downloadURL)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+
+  };
+
+  const onImagesDrop = async (acceptedFiles) => {
+    try {
+      const storage = getStorage(app);
+      const newImagesURLs = await Promise.all(
+        acceptedFiles.map(async (file) => {
+          const storageRef = ref(storage, `images/${file.name}`);
+          await uploadBytes(storageRef, file);
+          const downloadURL = await getDownloadURL(storageRef);
+          return downloadURL;
+        })
+      );
+      setTurfImages((prevImages) => [...prevImages, ...newImagesURLs]);
+      if (turfImagesURL.length + acceptedFiles.length == 5) {
+        setIsImagesDropZoneVisible(false);
+      }
+    } catch (error) {
+      console.error(error);
     }
   };
 
-  const onImagesDrop = (acceptedFiles) => {
-    const newImages = acceptedFiles.map(file => file);
-    const newPreviews = acceptedFiles.map(file => URL.createObjectURL(file));
-
-    setImages(prevImages => {
-      const updatedImages = [...prevImages, ...newImages];
-      if (updatedImages.length >= 5) {
-        setIsImagesDropZoneVisible(false);
-      }
-      return updatedImages;
-    });
-    setImagePreviews(prevPreviews => [...prevPreviews, ...newPreviews]);
-  };
-
   const removeThumbnail = () => {
-    setThumbnail(null);
-    setThumbnailPreview(null);
+    setThumbnailURL(null);
   };
 
-  const removeImage = (index) => {
-    const newImages = [...images];
-    const newImagePreviews = [...imagePreviews];
+  const removeTurfImages = (index) => {
+    const newImages = [...turfImagesURL];
     newImages.splice(index, 1);
-    newImagePreviews.splice(index, 1);
-    setImages(newImages);
-    setImagePreviews(newImagePreviews);
+    setTurfImages(newImages);
 
     if (newImages.length < 5) {
-      setIsImagesDropZoneVisible(true);b 
+      setIsImagesDropZoneVisible(true);
     }
   };
 
   const { getRootProps: getThumbnailRootProps, getInputProps: getThumbnailInputProps } = useDropzone({ onDrop: onThumbnailDrop });
   const { getRootProps: getImagesRootProps, getInputProps: getImagesInputProps } = useDropzone({ onDrop: onImagesDrop });
 
-  useEffect(() => {
-    return () => {
-      if (thumbnailPreview) URL.revokeObjectURL(thumbnailPreview);
-      imagePreviews.forEach(preview => URL.revokeObjectURL(preview));
-    };
-  }, [thumbnailPreview, imagePreviews]);
-
   const onSubmit = async (data) => {
     data.userID = Cookies.get("userID");
-    console.log("userID from Cookies:", data.userID); // Debugging log
-    const formData = new FormData();
-    formData.append('turfName', data.turfName);
-    formData.append('turfDescription', data.turfDescription);
-    formData.append('ownerContact', data.ownerContact);
-    formData.append('address', data.address);
-    formData.append('turfDistrict', data.turfDistrict);
-    formData.append('turfTimings', data.turfTimings);
-    if (thumbnail) {
-        formData.append('turfThumbnail', thumbnail);
-    }
-    images.forEach((image, index) => {
-        formData.append('turfImages', image);
-    });
-    formData.append('turfSportCategory', data.turfSportCategory);
-    formData.append('turfPrice', data.turfPrice);
-    formData.append('userID', data.userID); 
-    console.log("FormData entries:", Array.from(formData.entries()));
-
+    console.log("userID from Cookies:", data.userID);
+    data.turfImages = turfImagesURL;
+    data.turfThumbnail = thumbnailURL;
+  
+    const formData = {
+      turfName: data.turfName,
+      turfDescription: data.turfDescription,
+      ownerContact: data.ownerContact,
+      address: data.address,
+      turfDistrict: data.turfDistrict,
+      turfTimings: data.turfTimings,
+      turfThumbnail: data.turfThumbnail,
+      turfImages: data.turfImages,
+      turfSportCategory: data.turfSportCategory,
+      turfPrice: data.turfPrice,
+      userID: data.userID,
+    };
+  
+    console.log("FormData:", formData);
+  
     try {
-        await axios.post('http://localhost:3000/api/upload', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
-        });
-        toast.success('Turf Uploaded Successfully');
-        navigate('/userHome');
+      await axios.post('http://localhost:3000/api/upload', formData);
+      toast.success('Turf Uploaded Successfully');
+      navigate('/userHome');
     } catch (error) {
-        console.error('Error uploading turf information and images:', error);
-        toast.error('Error uploading your turf');
+      console.error('Error uploading turf information and images:', error);
+      toast.error('Error uploading your turf');
     }
-};
+  };
+  
 
 
   return (
@@ -105,47 +110,48 @@ const OwnerHome = () => {
       <form onSubmit={handleSubmit(onSubmit)} className="bg-white shadow-lg rounded-lg p-8 w-full max-w-3xl">
         <h2 className="text-2xl font-bold mb-6 text-center">Upload Your Turf</h2>
 
-        <div className="mb-4">
+        <div className="mb-6">
           <label htmlFor="turfThumbnail" className="block text-gray-700 mb-2">Add your Turf Thumbnail image:</label>
-          <div className="border border-dashed border-gray-400 p-4 rounded-lg bg-gray-50 text-center">
-            {thumbnailPreview ? (
+          <div className="relative border border-dashed border-gray-400 p-4 rounded-lg bg-gray-50 text-center">
+            {thumbnailURL ? (
               <div>
-                <img src={thumbnailPreview} alt="Thumbnail" className="max-w-full h-auto mx-auto" style={{ maxWidth: '300px', maxHeight: '300px' }} />
-                <button type="button" onClick={removeThumbnail} className="mt-2 px-4 py-2 bg-red-600 text-white rounded-lg">
+                <img src={thumbnailURL} alt="Thumbnail" className="max-w-full h-auto mx-auto" style={{ maxWidth: '300px', maxHeight: '300px' }} />
+                <button type="button" onClick={removeThumbnail} className="absolute top-2 right-2 px-4 py-2 bg-red-600 text-white rounded-lg">
                   Remove Thumbnail
                 </button>
               </div>
             ) : (
-              <div {...getThumbnailRootProps({ className: 'dropzone' })}>
+              <div {...getThumbnailRootProps({ className: 'dropzone p-6 border-dashed border-2 border-gray-300 bg-gray-50 text-center cursor-pointer' })}>
                 <input {...getThumbnailInputProps()} />
-                <p className="text-gray-600">Click here or drag 'n' drop a thumbnail image</p>
+                <p className="text-gray-600">Click or drag 'n' drop a thumbnail image here</p>
               </div>
             )}
           </div>
         </div>
 
+        
         <div className="mb-4">
-          <label htmlFor="turfImages" className="block text-gray-700 mb-2">Add images of your turf:</label>
-          {isImagesDropZoneVisible && (
-            <div {...getImagesRootProps({ className: 'dropzone bg-gray-200 border-dashed border-2 border-gray-400 p-8 text-center cursor-pointer' })}>
-              <input {...getImagesInputProps()} />
-              <p>Click here or drag 'n' drop images</p>
-            </div>
-          )}
-          <aside className="mt-4">
-            <ul className="flex flex-wrap justify-center gap-4">
-              {imagePreviews.map((preview, index) => (
-                <li key={index}>
-                  <div className="relative">
-                    <img src={preview} alt={`Turf ${index + 1}`} className="max-w-full h-auto mx-auto" style={{ maxWidth: '300px', maxHeight: '300px' }} />
-                    <button type="button" onClick={() => removeImage(index)} className="absolute top-0 right-0 mt-2 mr-2 px-2 py-1 bg-red-600 text-white rounded-lg">
-                      Remove
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </aside>
+            <label htmlFor="turfImages" className="block text-gray-700 mb-2">Add images of your turf:</label>
+            {isImagesDropZoneVisible && (
+              <div {...getImagesRootProps({ className: 'dropzone bg-gray-200 border-dashed border-2 border-gray-400 p-8 text-center cursor-pointer' })}>
+                <input {...getImagesInputProps()} />
+                <p>Click here or drag 'n' drop images</p>
+              </div>
+            )}
+            <aside className="mt-4">
+              <ul className="flex flex-wrap justify-center gap-4">
+                {turfImagesURL.map((imageURL, index) => (
+                  <li key={index}>
+                    <div className="relative">
+                      <img src={imageURL} alt={`Turf ${index + 1}`} className="max-w-full h-auto mx-auto" style={{ maxWidth: '300px', maxHeight: '300px' }} />
+                      <button type="button" onClick={() => removeTurfImages(index)} className="absolute top-0 right-0 mt-2 mr-2 px-2 py-1 bg-red-600 text-white rounded-lg">
+                        Remove
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </aside>
         </div>
 
         <div className="mb-4">
@@ -156,8 +162,12 @@ const OwnerHome = () => {
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             {...register('turfName', {
               required: "Name is necessary",
+              minLength:{
+                value:4,
+                message:"Atleast 4 letters"
+              },
               maxLength: {
-                value: 20,
+                value: 30,
                 message: "Do not exceed more than 10 characters"
               }
             })}
@@ -188,7 +198,7 @@ const OwnerHome = () => {
         <div className="mb-4">
           <label htmlFor="ownerContact" className="block text-gray-700 mb-2">Add your contact No:</label>
           <input
-            type="text"
+            type="number"
             id="ownerContact"
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             {...register('ownerContact', {
@@ -211,7 +221,7 @@ const OwnerHome = () => {
             {...register('address', {
               required: "Address is necessary",
               maxLength: {
-                value: 30,
+                value: 99,
                 message: "Do not exceed more than 30 characters"
               }
             })}

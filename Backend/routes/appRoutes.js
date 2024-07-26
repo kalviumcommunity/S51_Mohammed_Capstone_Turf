@@ -1,28 +1,12 @@
 const express = require('express');
-const multer = require('multer');
 const turfUploadValidator = require('../JOIvalidator');
 const turfUpload = require('../models/turfModel');
 
 
 const router = express.Router();
-const storage = multer.memoryStorage();
 
-const upload = multer({
-  storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) {
-      cb(null, true);
-    } else {
-      cb(new Error('Invalid file type. Only image files are allowed.'), false);
-    }
-  }
-});
 
-router.post('/upload', upload.fields([
-  { name: 'turfThumbnail', maxCount: 1 },
-  { name: 'turfImages', maxCount: 10 }
-]), async (req, res) => {
+router.post('/upload', async (req, res) => {
   try {
     const { error, value } = turfUploadValidator(req.body);
     if (error) {
@@ -31,31 +15,8 @@ router.post('/upload', upload.fields([
       return res.status(400).json(error.details);
     }
 
-    if (!req.files['turfThumbnail']) {
-      return res.status(400).json({ message: 'turfThumbnail is required' });
-    }
-    if (!req.files['turfImages'] || req.files['turfImages'].length === 0) {
-      return res.status(400).json({ message: 'turfImages are required' });
-    }
+    const {turfThumbnail, turfImages, turfName, turfDescription, ownerContact, address, turfDistrict, turfTimings, turfSportCategory, turfPrice, userID } = req.body;
 
-    const { turfName, turfDescription, ownerContact, address, turfDistrict, turfTimings, turfSportCategory, turfPrice, userID } = req.body;
-
-    let turfThumbnail = null;
-    let turfImages = [];
-
-    if (req.files['turfThumbnail'] && req.files['turfThumbnail'][0]) {
-      turfThumbnail = {
-        data: req.files['turfThumbnail'][0].buffer,
-        contentType: req.files['turfThumbnail'][0].mimetype,
-      };
-    }
-
-    if (req.files['turfImages']) {
-      turfImages = req.files['turfImages'].map(file => ({
-        data: file.buffer,
-        contentType: file.mimetype
-      }));
-    }
 
     const newTurf = new turfUpload({
       turfThumbnail,
@@ -79,19 +40,8 @@ router.post('/upload', upload.fields([
   }
 });
 
-// File size error handling middleware for multer
-router.use((err, req, res, next) => {
-  if (err instanceof multer.MulterError) {
-    if (err.code === 'LIMIT_FILE_SIZE') {
-      return res.status(400).send('File size too large. Maximum allowed size is 5MB.');
-    }
-  }
-  if (err.message === 'Invalid file type. Only image files are allowed.') {
-    return res.status(400).send(err.message);
-  }
-  next(err);
-});
 
+ //////////
 router.get('/yourTurfs', async (req, res) => {
   try {
     const userID = req.cookies.userID;
@@ -114,6 +64,42 @@ router.get('/yourTurfs', async (req, res) => {
     res.status(500).send('An error occurred while fetching the turfs');
   }
 });
+
+//////////////////
+
+router.put('/updateTurfData', async (req,res)=>{
+  try {
+    const userID = req.cookies.userID;
+    console.log("userId cookie fetched", userID)
+
+    const updates = req.body
+    const updateTurf = await turfUpload.findOneAndUpdate({userID}, { $set: updates }, { new: true });
+    if (!updateTurf) {
+      return res.status(404).json({ message: 'User not found' });
+  }
+  res.status(200).json({ message: 'Successfully updated user', updateTurf});
+  } catch (error) {
+    console.error('PATCH error', error);
+    res.status(500).json({ error: 'Internal Server Error' });  }
+})
+
+/////////////////// 
+
+router.get('/getAllTurfs', async(req, res)=>{
+  try {
+    const allTurfs = await turfUpload.find()
+    console.log(allTurfs)
+    if (allTurfs.length === 0) {
+      return res.status(404).json({ message: "No details found" });
+    }
+    res.status(200).json(allTurfs);
+
+  } catch (error) {
+    console.log(error.message)
+    res.status(500).json({ error: "Internal Server Error" });
+
+  }
+})
 
 
 module.exports = router;

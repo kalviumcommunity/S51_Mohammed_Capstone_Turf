@@ -4,6 +4,7 @@
     "@react-spring/web": "^9.7.3",
     "appwrite": "^15.0.0",
     "axios": "^1.7.2",
+    "firebase": "^10.12.4",
     "js-cookie": "^3.0.5",
     "node": "^20.15.0",
     "react": "^18.3.1",
