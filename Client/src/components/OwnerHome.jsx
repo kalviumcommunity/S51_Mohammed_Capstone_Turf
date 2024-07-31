@@ -122,8 +122,8 @@ const OwnerHome = () => {
               </div>
             ) : (
               <div {...getThumbnailRootProps({ className: 'dropzone p-6 border-dashed border-2 border-gray-300 bg-gray-50 text-center cursor-pointer' })}>
-                <input {...getThumbnailInputProps()} />
-                <p className="text-gray-600">Click or drag 'n' drop a thumbnail image here</p>
+                <input {...getThumbnailInputProps()} />   {/* implemented file upload functionality using dopzone, */}
+                <p className="text-gray-600">Click or drag 'n' drop a thumbnail image here</p> {/* also implemented drag and drop feature */}
               </div>
             )}
           </div>
@@ -134,8 +134,8 @@ const OwnerHome = () => {
             <label htmlFor="turfImages" className="block text-gray-700 mb-2">Add images of your turf:</label>
             {isImagesDropZoneVisible && (
               <div {...getImagesRootProps({ className: 'dropzone bg-gray-200 border-dashed border-2 border-gray-400 p-8 text-center cursor-pointer' })}>
-                <input {...getImagesInputProps()} />
-                <p>Click here or drag 'n' drop images</p>
+                <input {...getImagesInputProps()} />   {/* implemented file upload functionality using dopzone, */}
+                <p>Click here or drag 'n' drop images of your turf</p>  {/* also implemented drag and drop feature */}
               </div>
             )}
             <aside className="mt-4">
