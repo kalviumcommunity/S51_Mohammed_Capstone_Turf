@@ -106,6 +106,7 @@ export const UserProvider = ({ children }) => {
 
   const contextData = {
     user,
+    setUser,
     loginUser,
     logoutUser,
     signupUser,

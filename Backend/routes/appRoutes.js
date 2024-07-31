@@ -16,8 +16,6 @@ router.post('/upload', async (req, res) => {
     }
 
     const {turfThumbnail, turfImages, turfName, turfDescription, ownerContact, address, turfDistrict, turfTimings, turfSportCategory, turfPrice, userID } = req.body;
-
-
     const newTurf = new turfUpload({
       turfThumbnail,
       turfImages,
