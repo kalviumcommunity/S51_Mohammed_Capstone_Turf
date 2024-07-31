@@ -168,7 +168,7 @@ const OwnerHome = () => {
               },
               maxLength: {
                 value: 30,
-                message: "Do not exceed more than 10 characters"
+                message: "Do not exceed more than 30 characters"
               }
             })}
           />
