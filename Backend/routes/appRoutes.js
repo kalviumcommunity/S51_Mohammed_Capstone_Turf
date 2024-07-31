@@ -70,16 +70,18 @@ router.get('/yourTurfs', async (req, res) => {
 router.put('/updateTurfData', async (req,res)=>{
   try {
     const userID = req.cookies.userID;
-    console.log("userId cookie fetched", userID)
+    console.log("userId cookie fetched", userID, "from update turdf")
 
-    const updates = req.body
-    const updateTurf = await turfUpload.findOneAndUpdate({userID}, { $set: updates }, { new: true });
+    const {data} = req.body
+    const _id = data._id;
+    
+    const updateTurf = await turfUpload.findOneAndUpdate({_id}, { $set: data }, { new: true });
     if (!updateTurf) {
       return res.status(404).json({ message: 'User not found' });
   }
   res.status(200).json({ message: 'Successfully updated user', updateTurf});
   } catch (error) {
-    console.error('PATCH error', error);
+    console.error('PUT error', error);
     res.status(500).json({ error: 'Internal Server Error' });  }
 })
 

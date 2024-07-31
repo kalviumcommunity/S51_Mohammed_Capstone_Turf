@@ -7,7 +7,7 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import app from './firebase';
 import { useDropzone } from 'react-dropzone';
 
-const UpdateTurfData = () => {
+const UpdateTurfData = ({setTurfs}) => {
   const { register, handleSubmit, setValue, formState: { errors } } = useForm();
   const { selectedTurf } = useTurfContext();
   const navigate = useNavigate();
@@ -18,7 +18,7 @@ const UpdateTurfData = () => {
   const onThumbnailDrop = async (acceptedFiles) => {
     try {
       const thumbnail = acceptedFiles[0];
-      if (thumbnail) {
+      if (thumbnail) {  
         const storage = getStorage(app);
         const storageRef = ref(storage, `thumbnails/${thumbnail.name}`);
         await uploadBytes(storageRef, thumbnail);
@@ -83,14 +83,21 @@ const UpdateTurfData = () => {
 
   const onSubmit = async (data) => {
     try {
-      data.turfImages = turfImagesURL;
+      console.log(selectedTurf)
+      data._id = selectedTurf._id;
+      data.turfImages = turfImagesURL;  
       data.turfThumbnail = thumbnailURL;
       const response = await axios.put(
         'http://localhost:3000/api/updateTurfData',
-        data,
+        {data},
         { withCredentials: true }
       );
       console.log('Updated Turf:', response.data);
+      const response2 = await axios.get("http://localhost:3000/api/yourTurfs", {
+        withCredentials: true,
+      });
+      console.log(response2.data)
+      setTurfs(Array.isArray(response.data) ? response.data : []);
       navigate('/yourTurf');
     } catch (error) {
       console.error('Error updating turf:', error);

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -16,6 +16,8 @@ import { TurfProvider } from './components/TurfProvider';
 
 
 function App() {
+  const [turfs, setTurfs] = useState([]);
+
   return (
     <UserProvider>
       <TurfProvider>
@@ -48,7 +50,7 @@ function App() {
                   path="/yourTurf"
                   element={
                     <PrivateRoute>
-                      <YourTurf/>
+                      <YourTurf turfs={turfs} setTurfs={setTurfs}/>
                     </PrivateRoute>
                   }
                 />
@@ -57,7 +59,7 @@ function App() {
                   path="/updateTurfData"
                   element={
                     <PrivateRoute>
-                      <UpdateTurfData />
+                      <UpdateTurfData setTurfs={setTurfs}/>
                     </PrivateRoute>
                   }
                 />

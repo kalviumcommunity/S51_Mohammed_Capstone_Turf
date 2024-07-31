@@ -3,8 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useTurfContext } from "./TurfProvider";
 
-const YourTurf = () => {
-  const [turfs, setTurfs] = useState([]);
+const YourTurf = ({turfs, setTurfs}) => {
   const { selectedTurf, setSelectedTurf } = useTurfContext();
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -77,6 +76,7 @@ const YourTurf = () => {
               />
               <h2 className="text-2xl font-bold mt-2">{turf.turfName}</h2>
               <p className="text-xl mt-1">${turf.turfPrice}</p>
+              <p>{JSON.stringify(turf._id)}</p>
             </div>
           ))}
         </div>
@@ -134,6 +134,7 @@ const YourTurf = () => {
                     src={image}
                     alt={`Turf Image ${index + 1}`}
                     className="w-full h-40 object-cover rounded-lg"
+                    
                   />
                 ))}
               </div>
