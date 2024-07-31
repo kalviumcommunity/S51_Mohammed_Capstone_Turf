@@ -9,10 +9,7 @@ import { useAuth } from './UserProvider';
 const Login = () => {
 
     const { register, handleSubmit, formState: { errors } } = useForm();
-    const navigate = useNavigate();
     const {user, loginUser} = useAuth()
-
-    const loginForm = useRef(null)
 
     useEffect(() => {
         if(user){
