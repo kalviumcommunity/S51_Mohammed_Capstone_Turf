@@ -1,14 +1,13 @@
-import React, { useEffect, useRef } from 'react';
+import {useEffect} from 'react';
 import { Client, Account, OAuthProvider } from "appwrite";
 import { useAuth } from './UserProvider';
-import Cookies from 'js-cookie'
-
+import Cookies from 'js-cookie';
+import { toast } from 'react-toastify';
 
 const GoogleAuth = () => {
   const AppwriteId = import.meta.env.VITE_APPWRITE_ID;
   const AppwriteEndpoint = import.meta.env.VITE_APPWRITE_ENDPOINT;
-  const {user, setUser} = useAuth()
-
+  const { user, setUser } = useAuth();
 
   const client = new Client()
     .setEndpoint(AppwriteEndpoint)
@@ -17,32 +16,42 @@ const GoogleAuth = () => {
   const account = new Account(client);
 
   const handleGoogleLogin = async () => {
-    try{
-
-      if (user){
+    try {
+      if (user) {
         await account.deleteSession('current');
         setUser(null);
         Cookies.remove('email');
-        Cookies.remove('userID')
+        Cookies.remove('userID');
       }
 
+      // Start the OAuth2 session
         account.createOAuth2Session(
         OAuthProvider.Google,
         'http://localhost:5173/userHome',
         'http://localhost:5173/'
       );
-      const accountDetails = await account.get();
-      Cookies.set('userID', accountDetails.$id)
-      console.log(accountDetails.$id)
-      setUser(accountDetails);
-      toast.success("Login successful");
+    } catch (error) {
+      console.log(error.message);
     }
-    catch(error){
-      console.log(error.message)
-    }
-
-
   };
+
+  // useEffect to handle post-OAuth actions
+  useEffect(() => {
+    const checkUserStatus = async () => {
+      try {
+        const accountDetails = await account.get();
+        if (accountDetails) {
+          Cookies.set('userID', accountDetails.$id);
+          Cookies.set('email', accountDetails.email);
+          setUser(accountDetails);
+          toast.success("Login successful");
+        }
+      } catch (error) {
+        console.log("No active session found:", error.message);
+      }
+    };
+    checkUserStatus();
+  }, [user, setUser, account]);
 
   return (
     <button

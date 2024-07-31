@@ -9,7 +9,7 @@ const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(null); 
   const navigate = useNavigate();
 
   useEffect(() => {
