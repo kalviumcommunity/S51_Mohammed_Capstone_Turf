@@ -13,12 +13,6 @@ const Start = () => {
   const navigate = useNavigate();
 
 
-  useEffect(() => {
-    // if(user){
-    //     navigate('/userHome')
-    //     toast.success(`Logged in as ${userEmail}`)
-    // }
-},[])
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-indigo-500 to-purple-600">
