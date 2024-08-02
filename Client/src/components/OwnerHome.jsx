@@ -18,18 +18,19 @@ const OwnerHome = () => {
 
   const onThumbnailDrop = async (acceptedFiles) => {
     try {
-      console.log(acceptedFiles[0])
+      // console.log(acceptedFiles[0])
       const thumbnail = acceptedFiles[0]
       if (thumbnail){
         const storage = getStorage(app)
         const storageref = ref(storage, `thumbnails/${thumbnail.name}`);
         await uploadBytes(storageref, thumbnail)
         const downloadURL = await getDownloadURL(storageref)
-        console.log(downloadURL)
+        // console.log(downloadURL)
         setThumbnailURL(downloadURL)
       }
     } catch (error) {
       console.log(error)
+      toast.error("Can't upload file. This might occur when the file is not an image, file size is too large")
     }
 
   };
@@ -51,6 +52,7 @@ const OwnerHome = () => {
       }
     } catch (error) {
       console.error(error);
+      toast.error("Can't upload file. This might occur when the file is not an image, file size is too large")
     }
   };
 
@@ -73,7 +75,7 @@ const OwnerHome = () => {
 
   const onSubmit = async (data) => {
     data.userID = Cookies.get("userID");
-    console.log("userID from Cookies:", data.userID);
+    // console.log("userID from Cookies:", data.userID);
     data.turfImages = turfImagesURL;
     data.turfThumbnail = thumbnailURL;
   
@@ -99,12 +101,10 @@ const OwnerHome = () => {
       navigate('/userHome');
     } catch (error) {
       console.error('Error uploading turf information and images:', error);
-      toast.error('Error uploading your turf');
+      toast.message('We are unable to upload your turf. This may happen due to server error, try reloading the page');
     }
   };
   
-
-
   return (
     <div className="bg-gray-100 min-h-screen py-6 flex flex-col items-center">
       <form onSubmit={handleSubmit(onSubmit)} className="bg-white shadow-lg rounded-lg p-8 w-full max-w-3xl">

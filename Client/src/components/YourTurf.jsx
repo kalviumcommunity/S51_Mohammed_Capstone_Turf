@@ -3,9 +3,11 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useTurfContext } from "./TurfProvider";
 
-const YourTurf = ({turfs, setTurfs}) => {
+const YourTurf = ({ turfs, setTurfs }) => {
   const { selectedTurf, setSelectedTurf } = useTurfContext();
+  const [deleteTurfId, setDeleteTurfId] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [deleteTurfAlert, setDeleteTurfAlert] = useState(false);
   const navigate = useNavigate();
 
   const fetchUserTurfs = async () => {
@@ -17,6 +19,8 @@ const YourTurf = ({turfs, setTurfs}) => {
     } catch (error) {
       console.error("Error fetching user turfs:", error);
       setTurfs([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -30,10 +34,36 @@ const YourTurf = ({turfs, setTurfs}) => {
 
   const handleClosePopup = () => {
     setSelectedTurf(null);
+    setDeleteTurfAlert(false)
   };
 
   const handleEditClick = () => {
     navigate("/updateTurfData", { state: { selectedTurf } });
+  };
+
+  const handleDeleteClick = (turf) => {
+    setDeleteTurfId(turf._id);
+    setDeleteTurfAlert(true);
+  };
+
+  const cancelPopup = () => {
+    setDeleteTurfAlert(false);
+    setDeleteTurfId(null);
+  };
+
+  const handleDeleteTurf = async () => {
+    try {
+      await axios.delete('http://localhost:3000/api/deleteTurf', {
+        data: { _id: deleteTurfId },
+        withCredentials: true
+      });
+      setTurfs((prevTurfs) => prevTurfs.filter(turf => turf._id !== deleteTurfId));
+      setDeleteTurfAlert(false);
+      setDeleteTurfId(null);
+      setSelectedTurf(null);
+    } catch (error) {
+      console.error("Error deleting turf:", error);
+    }
   };
 
   return (
@@ -47,7 +77,9 @@ const YourTurf = ({turfs, setTurfs}) => {
         </button>
       </div>
       <h1 className="text-4xl font-bold mt-2">Your Turfs</h1>
-      {turfs.length === 0 ? (
+      {loading ? (
+        <div className="mt-10 text-center">Loading...</div>
+      ) : turfs.length === 0 ? (
         <div className="mt-10 text-center">
           <p className="text-xl">You have not uploaded any turfs yet.</p>
           <button
@@ -66,17 +98,13 @@ const YourTurf = ({turfs, setTurfs}) => {
               onClick={() => handleThumbnailClick(turf)}
             >
               <img
-                src={
-                  turf.turfThumbnail
-                    ? `${turf.turfThumbnail}`
-                    : "default-image-url"
-                }
+                src={turf.turfThumbnail ? `${turf.turfThumbnail}` : "default-image-url"}
                 alt={turf.turfName}
                 className="w-full h-48 object-cover rounded-t-lg"
               />
               <h2 className="text-2xl font-bold mt-2">{turf.turfName}</h2>
               <p className="text-xl mt-1">${turf.turfPrice}</p>
-              <p>{JSON.stringify(turf._id)}</p>
+              <p>{turf._id}</p>
             </div>
           ))}
         </div>
@@ -119,9 +147,16 @@ const YourTurf = ({turfs, setTurfs}) => {
                 </p>
                 <button
                   onClick={handleEditClick}
-                  className="px-4 py-2 bg-blue-500 text-white font-semibold rounded hover:bg-blue-700"
+                  className="btn px-4 py-2 w-20 bg-blue-500 text-white font-semibold hover:bg-blue-700"
                 >
                   Edit
+                </button>
+
+                <button
+                  onClick={() => handleDeleteClick(selectedTurf)}
+                  className="btn px-4 py-2 w-20 bg-red-500 hover:bg-red-600 ml-3 font-semibold text-white"
+                >
+                  Delete
                 </button>
               </div>
             </div>
@@ -134,9 +169,36 @@ const YourTurf = ({turfs, setTurfs}) => {
                     src={image}
                     alt={`Turf Image ${index + 1}`}
                     className="w-full h-40 object-cover rounded-lg"
-                    
                   />
                 ))}
+              </div>
+            )}
+
+            {deleteTurfAlert && (
+              <div role="alert" className="alert z-10 mt-4 justify-center items-center text-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  className="stroke-info h-6 w-6 shrink-0"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  ></path>
+                </svg>
+                <span>Do you really want to "DELETE" this turf?</span>
+                <p>Warning! Once it is deleted, it can't be retrieved.</p>
+                <div>
+                  <button className="btn btn-md " onClick={cancelPopup}>
+                    NO
+                  </button>
+                  <button className="btn btn-md ml-3 btn-primary" onClick={handleDeleteTurf}>
+                    YES
+                  </button>
+                </div>
               </div>
             )}
           </div>

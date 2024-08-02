@@ -24,7 +24,6 @@ const GoogleAuth = () => {
         Cookies.remove('userID');
       }
 
-      // Start the OAuth2 session
         account.createOAuth2Session(
         OAuthProvider.Google,
         'http://localhost:5173/userHome',
@@ -35,7 +34,6 @@ const GoogleAuth = () => {
     }
   };
 
-  // useEffect to handle post-OAuth actions
   useEffect(() => {
     const checkUserStatus = async () => {
       try {
@@ -44,14 +42,14 @@ const GoogleAuth = () => {
           Cookies.set('userID', accountDetails.$id);
           Cookies.set('email', accountDetails.email);
           setUser(accountDetails);
-          toast.success("Login successful");
+          // toast.success("Login successful");
         }
       } catch (error) {
-        console.log("No active session found:", error.message);
+        console.log("No active session found");
       }
     };
     checkUserStatus();
-  }, [user, setUser, account]);
+  }, []);
 
   return (
     <button
