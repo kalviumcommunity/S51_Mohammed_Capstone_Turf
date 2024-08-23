@@ -4,6 +4,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import GoogleAuth from './GoogleAuth';
 import Cookies from 'js-cookie';
 import { useAuth } from './UserProvider';
+import { toast } from 'react-toastify';
 
 
 const Signup = () => {
@@ -29,13 +30,19 @@ const Signup = () => {
     navigate('/signup')
   }
   checkUsersStatus()
-})
+}, [])
 
   const onSubmit = async (data) => {
-    const email = data.email
-    const password = data.password
-    const userInfo = {email, password}
-    signupUser(userInfo)
+    try {
+      const email = data.email
+      const password = data.password
+      const userInfo = {email, password}
+      signupUser(userInfo)
+    } catch (error) {
+      console.log(error);
+      toast.error("We are unable to sign you in, due to server error. Please try again later")
+    }
+
 
   };
 

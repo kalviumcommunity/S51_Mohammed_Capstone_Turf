@@ -77,11 +77,35 @@ router.put('/updateTurfData', async (req,res)=>{
     if (!updateTurf) {
       return res.status(404).json({ message: 'User not found' });
   }
-  res.status(200).json({ message: 'Successfully updated user', updateTurf});
+  res.status(200).json({ message: 'Successfully updated turf', updateTurf});
   } catch (error) {
     console.error('PUT error', error);
     res.status(500).json({ error: 'Internal Server Error' });  }
 })
+
+router.delete('/deleteTurf', async (req, res) => {
+  try {
+    const userID = req.cookies.userID;
+    console.log("userId cookie fetched", userID, "from delete turf");
+
+    const { _id } = req.body;
+    
+    if (!userID) {
+      return res.status(400).json({ message: 'User ID not found in cookies' });
+    }
+
+    const deleteTurf = await turfUpload.findOneAndDelete({ _id, userID });
+
+    if (!deleteTurf) {
+      return res.status(404).json({ message: 'Turf not found or user does not have permission to delete this turf' });
+    }
+
+    res.status(200).json({ message: 'Successfully Deleted turf', deleteTurf });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 /////////////////// 
 
