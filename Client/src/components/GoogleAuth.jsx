@@ -42,7 +42,7 @@ const GoogleAuth = () => {
           Cookies.set('userID', accountDetails.$id);
           Cookies.set('email', accountDetails.email);
           setUser(accountDetails);
-          // toast.success("Login successful");
+          // toast("Login successful");
         }
       } catch (error) {
         console.log("No active session found");

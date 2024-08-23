@@ -90,7 +90,7 @@ const UpdateTurfData = ({setTurfs}) => {
       const response = await axios.put(
         'http://localhost:3000/api/updateTurfData',
         {data},
-        { withCredentials: true }
+        { withCredentials: true}
       );
       console.log('Updated Turf:', response.data);
       const response2 = await axios.get("http://localhost:3000/api/yourTurfs", {
@@ -137,11 +137,11 @@ const UpdateTurfData = ({setTurfs}) => {
               </div>
             )}
             <aside className="mt-4">
-              <ul className="flex flex-wrap gap-4">
+              <ul className="grid grid-cols-2 gap-7">
                 {turfImagesURL.map((imageURL, index) => (
-                  <li key={index} className="relative">
-                    <img src={imageURL} alt={`Turf ${index + 1}`} className="max-w-full h-auto" style={{ maxWidth: '300px', maxHeight: '300px' }} />
-                    <button type="button" onClick={() => removeTurfImages(index)} className="absolute top-0 right-0 mt-2 mr-2 px-2 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                  <li key={index} className="flex-row justify-center text-center items-center ">
+                    <img src={imageURL} alt={`Turf ${index + 1}`} className=''/>
+                    <button type="button" onClick={() => removeTurfImages(index)} className="btn mt-4 bg-red-600 text-white hover:bg-red-700 ">
                       Remove
                     </button>
                   </li>
@@ -221,6 +221,7 @@ const UpdateTurfData = ({setTurfs}) => {
           >
             Save Changes
           </button>
+
           <button
             onClick={()=> navigate('/yourTurf')}
             className='mt-6 px-6 py-3 bg-red-500 ml-3 text-white font-semibold rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500'

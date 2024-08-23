@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import {getStorage, ref, uploadBytes, getDownloadURL} from 'firebase/storage'
 import app from './firebase'
 import Cookies from 'js-cookie'
+import Calendar from 'react-calendar' 
 import axios from 'axios';
 
 const OwnerHome = () => {
@@ -14,6 +15,15 @@ const OwnerHome = () => {
 
   const [thumbnailURL, setThumbnailURL] = useState(null);
   const [turfImagesURL, setTurfImages] = useState([])
+  const [turfTimings, setTurfTimings] = useState([ 
+    { day: 'Monday', start: '', end: '' },
+    { day: 'Tuesday', start: '', end: '' },
+    { day: 'Wednesday', start: '', end: '' },
+    { day: 'Thursday', start: '', end: '' },
+    { day: 'Friday', start: '', end: '' },
+    { day: 'Saturday', start: '', end: '' },
+    { day: 'Sunday', start: '', end: '' },
+  ])
   const [isImagesDropZoneVisible, setIsImagesDropZoneVisible] = useState(true);
 
   const onThumbnailDrop = async (acceptedFiles) => {
@@ -85,7 +95,6 @@ const OwnerHome = () => {
       ownerContact: data.ownerContact,
       address: data.address,
       turfDistrict: data.turfDistrict,
-      turfTimings: data.turfTimings,
       turfThumbnail: data.turfThumbnail,
       turfImages: data.turfImages,
       turfSportCategory: data.turfSportCategory,
@@ -97,11 +106,11 @@ const OwnerHome = () => {
   
     try {
       await axios.post('http://localhost:3000/api/upload', formData);
-      toast.success('Turf Uploaded Successfully');
+      toast('Turf Uploaded Successfully');
       navigate('/userHome');
     } catch (error) {
       console.error('Error uploading turf information and images:', error);
-      toast.message('We are unable to upload your turf. This may happen due to server error, try reloading the page');
+      toast('We are unable to upload your turf. This may happen due to server error, try reloading the page');
     }
   };
   
@@ -159,7 +168,7 @@ const OwnerHome = () => {
           <input
             type="text"
             id="turfName"
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-1/2 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             {...register('turfName', {
               required: "Name is necessary",
               minLength:{
@@ -176,12 +185,27 @@ const OwnerHome = () => {
         </div>
 
         <div className="mb-4">
+          <label htmlFor="email" className="block text-gray-700 mb-2">Type in your e-mail</label>
+          <input
+            type="text"
+            id="email"
+            className="w-1/2 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            {...register('email', {
+              required: "email is necessary",
+              
+            })}
+          />
+          {errors.turfName && <p className="text-red-500">{errors.turfName.message}</p>}
+        </div>
+
+        <div className="mb-4">
           <label htmlFor="turfDescription" className="block text-gray-700 mb-2">Type in your turf intro</label>
           <input
             type="text"
             id="turfDescription"
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-1/2 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             {...register('turfDescription', {
+              required : "Turf description is necessary",
               minLength: {
                 value: 4,
                 message: "Must be atleast 4 characters"
@@ -200,9 +224,13 @@ const OwnerHome = () => {
           <input
             type="number"
             id="ownerContact"
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-1/2 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             {...register('ownerContact', {
               required: "Contact is necessary",
+              minLength:{
+                value:10,
+                message: "Must be 10 numbers"
+              },
               maxLength: {
                 value: 10,
                 message: "Do not exceed more than 10 numbers"
@@ -217,12 +245,12 @@ const OwnerHome = () => {
           <input
             type="text"
             id="address"
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-1/2 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             {...register('address', {
               required: "Address is necessary",
               maxLength: {
-                value: 99,
-                message: "Do not exceed more than 30 characters"
+                value: 100,
+                message: "Do not exceed more than 100 characters"
               }
             })}
           />
@@ -233,7 +261,7 @@ const OwnerHome = () => {
           <label htmlFor="turfDistrict" className="block text-gray-700 mb-2">Select the district of your turf:</label>
           <select
             id="turfDistrict"
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-1/2 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             {...register('turfDistrict', { required: 'District is mandatory' })}
           >
             <option value="" disabled>Select one</option>
@@ -244,24 +272,36 @@ const OwnerHome = () => {
           {errors.turfDistrict && <p className="text-red-500">{errors.turfDistrict.message}</p>}
         </div>
 
-        <div className="mb-4">
-          <label htmlFor="turfTimings" className="block text-gray-700 mb-2">Add timings for your turf:</label>
-          <input
-            type="number"
-            id="fromTiming"
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            {...register('turfTimings', {
-              required: 'Set timings'
-            })}
-          />
-        </div>
+        <div className="mb-6">
+        <h3 className="text-lg font-semibold mb-4 text-gray-800">Set Turf Timings</h3>
+        {turfTimings.map((timing, index) => (
+          <div key={index} className="flex items-center mb-4">
+            <label className="w-1/4 text-gray-700">{timing.day}</label>
+            <input
+              type="time"
+              value={timing.start}
+              onChange={(e) => handleChange(index, 'start', e.target.value)}
+              className="w-1/3 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+            <span className="mx-2 text-gray-600">to</span>
+            <input
+              type="time"
+              value={timing.end}
+              onChange={(e) => handleChange(index, 'end', e.target.value)}
+              className="w-1/3 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+          </div>
+        ))}
+      </div>
+
+        <h1>hello</h1>
 
         <div className="mb-4">
           <label htmlFor="turfPrice" className="block text-gray-700 mb-2">Type in your turf price per hour:</label>
           <input
             type="text"
             id="turfPrice"
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-1/2 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             {...register('turfPrice', {
               required: "Price is required",
               maxLength: {
@@ -277,7 +317,7 @@ const OwnerHome = () => {
           <label htmlFor="turfSportCategory" className="block text-gray-700 mb-2">Select the Category of your turf:</label>
           <select
             id="turfSportCategory"
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-1/2 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             {...register('turfSportCategory', { required: 'category is mandatory' })}
           >
             <option value="" disabled>Select one</option>
@@ -288,8 +328,12 @@ const OwnerHome = () => {
           </select>
           {errors.turfSportCategory && <p className="text-red-500">{errors.turfSportCategory.message}</p>}
         </div>
+        
+        <div>
+            <Calendar/>
+        </div>
 
-        <button type="submit" className="w-full py-3 mt-4 bg-green-600 hover:bg-green-700 text-white rounded-lg">
+        <button type="submit" className="w-1/2 py-3 mt-4 bg-green-600 hover:bg-green-700 text-white rounded-lg">
           Submit
         </button>
       </form>
@@ -298,3 +342,4 @@ const OwnerHome = () => {
 };
 
 export default OwnerHome;
+

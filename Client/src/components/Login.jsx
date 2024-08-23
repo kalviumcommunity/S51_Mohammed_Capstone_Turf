@@ -28,14 +28,14 @@ const Login = () => {
     return (
         <div className="flex justify-center items-center min-h-screen bg-gray-100">
         <div className="bg-white p-8 rounded shadow-md w-full max-w-md">
-            <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
+            <h2 className="text-2xl text-black font-bold mb-6 text-center">Login</h2>
             <form onSubmit={handleSubmit(onSubmit)}>
             <div className="mb-4">
-                <label htmlFor="email" className="block text-gray-700">Email</label>
+                <label htmlFor="email" className="block bg-white text-gray-700">Email</label>
                 <input
                 type="text"
                 id="email"
-                className="w-full px-3 py-2 border border-gray-300 rounded mt-1"
+                className="w-full px-3 py-2 border bg-white border-gray-300 rounded mt-1"
                 placeholder="Enter email"
                 {...register('email', {
                     required: 'Email is mandatory',
@@ -52,7 +52,7 @@ const Login = () => {
                 <input
                 type="password"
                 id="password"
-                className="w-full px-3 py-2 border border-gray-300 rounded mt-1"
+                className="w-full bg-white px-3 py-2 border border-gray-300 rounded mt-1"
                 placeholder="Enter password"
                 {...register('password', {
                     required: 'Password is mandatory',

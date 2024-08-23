@@ -30,7 +30,7 @@ const Signup = () => {
     navigate('/signup')
   }
   checkUsersStatus()
-})
+}, [])
 
   const onSubmit = async (data) => {
     try {

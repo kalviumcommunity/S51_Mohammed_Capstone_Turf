@@ -31,7 +31,7 @@ export const UserProvider = ({ children }) => {
       // console.log(accountDetails.$id)
       setUser(accountDetails);
       Cookies.set('email', userInfo.email);
-      toast.success("Login successful");
+      toast("Login successful");
       navigate('/userHome');
     } catch (error) {
       console.log("Login failed", error.message);
@@ -52,21 +52,21 @@ export const UserProvider = ({ children }) => {
       setUser(null);
       Cookies.remove('email');
       Cookies.remove('userID')
-      toast.success("Logout successful");
+      toast("Logout successful");
       navigate('/');
     } catch (error) {
       console.log("Logout error:", error.message);
       toast.error("We are unable to log you out. Might be because of poor connection, or server related issue. Try again later.");
 
-      // if (error.code === 401) {
-      //   console.log("Session not found or already logged out.");
-      //   toast.error("");
-      //   setUser(null);
-      //   Cookies.remove('email');
-      //   navigate('/');
-      // } else {
-      //   toast.error("Logout failed");
-      // }
+      if (error.code === 401) {
+        console.log("Session not found or already logged out.");
+        toast.error("");
+        setUser(null);
+        Cookies.remove('email');
+        navigate('/');
+      } else {
+        toast.error("Logout failed");
+      }
     }
   };
 
@@ -86,7 +86,7 @@ export const UserProvider = ({ children }) => {
       Cookies.set('userID', accountDetails.$id)
       setUser(accountDetails);
       Cookies.set('email', userInfo.email);
-      toast.success("Signup successful");
+      toast("Signup successful");
       navigate('/userHome');
     } catch (error) {
       console.log("Signup failed", error.message);
@@ -94,6 +94,14 @@ export const UserProvider = ({ children }) => {
     }
     setLoading(false);
   };
+
+  const forgotPassword = async()=>{
+    try {
+      const promise = await createRecovery()
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   const checkUserStatus = async () => {
     setLoading(true);

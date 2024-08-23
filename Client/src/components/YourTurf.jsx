@@ -38,7 +38,7 @@ const YourTurf = ({ turfs, setTurfs }) => {
   };
 
   const handleEditClick = () => {
-    navigate("/updateTurfData", { state: { selectedTurf } });
+    navigate("/updateTurfData");
   };
 
   const handleDeleteClick = (turf) => {

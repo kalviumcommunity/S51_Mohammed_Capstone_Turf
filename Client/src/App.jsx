@@ -13,6 +13,8 @@ import GoogleAuth from './components/GoogleAuth';
 import { UserProvider } from './components/UserProvider';
 import UpdateTurfData from './components/UpdateTurfData';
 import { TurfProvider } from './components/TurfProvider';
+import SelectedTurf from './components/SelectedTurf';
+import AiChatBot from './components/AiChatBot';
 
 
 function App() {
@@ -55,6 +57,14 @@ function App() {
                   }
                 />
 
+                <Route path="/selectedTurf/:id" 
+                element={
+                <PrivateRoute>
+                  <SelectedTurf />
+                </PrivateRoute>
+                }
+                />
+
                 <Route
                   path="/updateTurfData"
                   element={
@@ -63,6 +73,14 @@ function App() {
                     </PrivateRoute>
                   }
                 />
+
+                <Route
+                path='/AiChatBot'
+                element={
+                  <PrivateRoute>
+                    <AiChatBot />
+                  </PrivateRoute>
+                }/>
 
               </Routes>
             <ToastContainer
