@@ -4,6 +4,7 @@ const TurfContext = createContext();
 
 export const TurfProvider = ({ children }) => {
   const [selectedTurf, setSelectedTurf] = useState(null);
+
   return (
     <TurfContext.Provider value={{ selectedTurf, setSelectedTurf }}>
       {children}
@@ -11,4 +12,6 @@ export const TurfProvider = ({ children }) => {
   );
 };
 
-export const useTurfContext = () => useContext(TurfContext);
+export const useTurfContext = () => {
+  return useContext(TurfContext);
+};

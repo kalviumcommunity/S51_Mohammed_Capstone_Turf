@@ -1,37 +1,10 @@
 const express = require('express');
-const turfUploadValidator = require('../JOI/TurfJOI');
+const turfUploadValidator = require('../JOIvalidator');
 const turfUpload = require('../models/turfModel');
-const userValidationSchema = require('../JOI/userJOI');
-const User = require('../models/userModels')
 
 
 const router = express.Router();
 
-
-router.post('/userDetails', async (req, res) => {
-  try {
-      const { error } = userValidationSchema.validate(req.body);
-      if (error) {
-          return res.status(400).json({ message: error.details[0].message });
-      }
-
-      const { userName, userPhNo, userDistrict, userLocation, userFavourites } = req.body;
-
-      const user = new User({
-          userName,
-          userPhNo,
-          userDistrict,
-          userLocation,
-          userFavourites
-      });
-
-      await user.save();
-      res.status(201).json({ message: 'User details saved successfully', user });
-  } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'An error occurred while saving user details', error: error.message });
-  }
-});
 
 router.post('/upload', async (req, res) => {
   try {
@@ -42,18 +15,18 @@ router.post('/upload', async (req, res) => {
       return res.status(400).json(error.details);
     }
 
-    const {turfName, email, ownerContact, turfDescription, turfPrice, address, turfTimings, turfSportCategory, turfThumbnail, turfImages, userID} = req.body;
+    const {turfThumbnail, turfImages, turfName, turfDescription, ownerContact, address, turfDistrict, turfTimings, turfSportCategory, turfPrice, userID } = req.body;
     const newTurf = new turfUpload({
+      turfThumbnail,
+      turfImages,
       turfName,
-      email,
-      ownerContact,
       turfDescription,
-      turfPrice, 
-      address, 
-      turfTimings, 
-      turfSportCategory, 
-      turfThumbnail, 
-      turfImages, 
+      ownerContact,
+      address,
+      turfDistrict,
+      turfTimings,
+      turfSportCategory,
+      turfPrice,
       userID
     });
 
@@ -110,8 +83,6 @@ router.put('/updateTurfData', async (req,res)=>{
     res.status(500).json({ error: 'Internal Server Error' });  }
 })
 
-///////////////////////
-
 router.delete('/deleteTurf', async (req, res) => {
   try {
     const userID = req.cookies.userID;
@@ -151,24 +122,6 @@ router.get('/getAllTurfs', async(req, res)=>{
     console.log(error.message)
     res.status(500).json({ error: "Internal Server Error" });
 
-  }
-})
-
-//////////////////
-
-router.get('/getTurfById/:id', async (req, res)=>{
-  try {
-    const turfId = req.params.id;
-    const turf = await turfUpload.findById(turfId);
-    console.log(turf);
-
-    if(!turf){
-      res.status(404).json({message:"No turf found for the specific Id"})
-    }
-    res.status(200).json(turf);
-  } catch (error) {
-    console.error("Error fetching turf by ID:", error);
-    res.status(500).json({ message: 'Internal server error' });
   }
 })
 
