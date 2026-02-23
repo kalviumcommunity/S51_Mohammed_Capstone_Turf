@@ -16,7 +16,7 @@ const AiChatBot = () => {
   }, [convos]);
 
   const generateAnswer = async () => {
-    if (!question.trim()) return;  // prevents empty questions
+    if (!question.trim()) return; // Prevent sending empty questions
     setLoading(true);
     try {
       let convo = {
@@ -55,6 +55,7 @@ const AiChatBot = () => {
         return newConvos;
       });
 
+      setQuestion("");
     } catch (error) {
       console.log(error);
       setConvos(prevConvos => {
@@ -73,18 +74,19 @@ const AiChatBot = () => {
   const handleKeyDown = (event) => {
     if (event.key === 'Enter') {
       generateAnswer();
-      setQuestion("")
+      setQuestion("");
+
     }
   };
 
   return (
-    <div className="flex flex-col items-center p-6 w-full bg-gray-100 dark:bg-gray-900 min-h-screen text-black dark:text-white">
+    <div className="flex flex-col items-center p-6 bg-gray-100 dark:bg-gray-900 min-h-screen text-black dark:text-white">
       <h1 className="text-3xl font-bold mb-6">Hello, Welcome to AI Chat</h1>
-      <div className="w-full max-w-screen-lg space-y-4 mx-auto" style={{ margin: "0 10%", width: "60%" }}>
+      <div className="w-full max-w-screen-md space-y-4 mx-auto">
         {
           convos.map(
             (convo, index) => (
-              <div key={index} className="flex flex-col w-full space-y-4">
+              <div key={index} className="flex flex-col justify-between gap-x-8 w-full space-y-4">
                 <div className="chat chat-start">
                   <div className="chat-bubble max-w-3/4 bg-gray-200 dark:bg-gray-700 text-black dark:text-white p-4 rounded-lg break-words">
                     {convo.question}
@@ -105,13 +107,13 @@ const AiChatBot = () => {
         }
         <div ref={convosEndRef} />
       </div>
-      <div className="w-full max-w-md mt-4">
+      <div className="w-full max-w-md">
         <input 
           type="text" 
           value={question} 
           onChange={(e) => setQuestion(e.target.value)} 
           onKeyDown={handleKeyDown}
-          className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded mb-4 bg-white dark:bg-gray-800 text-black dark:text-white leading-loose tracking-wide"
+          className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded mb-4 bg-white dark:bg-gray-800 text-black dark:text-white"
           placeholder="Ask me anything..."
         />
         <div 

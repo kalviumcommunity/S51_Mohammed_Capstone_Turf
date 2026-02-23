@@ -1,21 +1,72 @@
 const mongoose = require('mongoose');
 
-// Turf Database Schema created !!!
-
-const turfUploadSchema = new mongoose.Schema({
-  turfThumbnail: String, //thumbnail
-  turfImages: [String], // extra images
-  turfName: String, //name of the turf
-  turfDescription: String,  //extra details about the turf
-  ownerContact: Number, // owners contact number
-  address: String,  // address of the turf
-  turfDistrict: String,  //district 
-  turfTimings: Number, //timings
-  turfSportCategory: String, //category that turfer can play 
-  turfPrice: Number, //price/ hr
-  userID: String  // "ID" just to track the turf 
+const TurfSchema = new mongoose.Schema({
+  turfName: {
+    type: String,
+    required: true,
+    minlength: 4,
+    maxlength: 30
+  },
+  email: {
+    type: String,
+    required: true,
+    match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  },
+  ownerContact: {
+    type: String,
+    required: true,
+    match: /^[0-9]{10}$/
+  },
+  turfDescription: {
+    type: String,
+    required: true,
+    minlength: 20,
+    maxlength: 150
+  },
+  turfPrice: {
+    type: Number,
+    required: true,
+    min: 0
+  },
+  address: {
+    type: String,
+    required: true,
+    maxlength: 50
+  },
+  turfTimings: {
+    type: [
+      {
+        day: { type: String, required: true },
+        start: { type: String, required: true },
+        end: { type: String, required: true }
+      }
+    ],
+    required: true
+  },
+  turfSportCategory: {
+    type: String,
+    required: true,
+  },
+  turfThumbnail: {
+    type: String,
+    required: true,
+    match: /^(http|https):\/\/[^ "]+$/
+  },
+  turfImages: {
+    type: [String],
+    validate: [arrayLimit, '{PATH} exceeds the limit of 5'],
+    match: /^(http|https):\/\/[^ "]+$/
+  },
+  userID: {
+    type: String,
+    required: true
+  }
 });
 
-const turfUpload = mongoose.model('turfUpload', turfUploadSchema);
+// Custom validator for array limit
+function arrayLimit(val) {
+  return val.length <= 5;
+}
 
-module.exports = turfUpload;
+// Use module.exports to export the model
+module.exports = mongoose.model('Turf', TurfSchema);

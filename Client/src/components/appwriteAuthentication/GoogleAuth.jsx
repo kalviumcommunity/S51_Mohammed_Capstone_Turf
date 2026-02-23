@@ -1,7 +1,6 @@
-import {useEffect} from 'react';
-import { Client, Account, OAuthProvider } from "appwrite";
-import { useAuth } from './UserProvider';
-import Cookies from 'js-cookie';
+import { useEffect } from 'react';
+import { Client, Account, OAuthProvider } from 'appwrite';
+import { useAuth } from '../owner/UserProvider';
 import { toast } from 'react-toastify';
 
 const GoogleAuth = () => {
@@ -20,36 +19,38 @@ const GoogleAuth = () => {
       if (user) {
         await account.deleteSession('current');
         setUser(null);
-        Cookies.remove('email');
-        Cookies.remove('userID');
       }
 
-        account.createOAuth2Session(
+      // This redirects to Google Auth
+      account.createOAuth2Session(
         OAuthProvider.Google,
-        'http://localhost:5173/userHome',
-        'http://localhost:5173/'
+        'http://localhost:5173/userHome',  // success redirect
+        'http://localhost:5173/'           // failure redirect
       );
     } catch (error) {
-      console.log(error.message);
+      console.error('Google login failed:', error.message);
+      toast.error("Google login failed. Try again.");
+    }
+  };
+
+  const checkUserStatus = async () => {
+    try {
+      const user = await account.get();
+      setUser(user);
+    } catch (error) {
+      console.warn("No active session found");
+      setUser(null);
     }
   };
 
   useEffect(() => {
-    const checkUserStatus = async () => {
-      try {
-        const accountDetails = await account.get();
-        if (accountDetails) {
-          Cookies.set('userID', accountDetails.$id);
-          Cookies.set('email', accountDetails.email);
-          setUser(accountDetails);
-          // toast("Login successful");
-        }
-      } catch (error) {
-        console.log("No active session found");
-      }
-    };
-    checkUserStatus();
+    const timer = setTimeout(() => {
+      checkUserStatus();
+    }, 200); // delay to ensure cookie is attached
+    return () => clearTimeout(timer);
   }, []);
+
+
 
   return (
     <button

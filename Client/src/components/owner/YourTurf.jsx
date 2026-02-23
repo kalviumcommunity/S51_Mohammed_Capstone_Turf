@@ -136,12 +136,13 @@ const YourTurf = ({ turfs, setTurfs }) => {
                 <p className="mb-2">
                   <strong>Address:</strong> {selectedTurf.address}
                 </p>
-                <p className="mb-2">
-                  <strong>District:</strong> {selectedTurf.turfDistrict}
-                </p>
-                <p className="mb-2">
-                  <strong>Timings:</strong> {selectedTurf.turfTimings}
-                </p>
+                <ul className="text-lg mb-2">
+                {selectedTurf.turfTimings.map((timing, index) => (
+                  <li key={index}>
+                    <strong>{timing.day}:</strong> {timing.start} - {timing.end}
+                  </li>
+                ))}
+              </ul>
                 <p className="mb-4">
                   <strong>Price:</strong> ${selectedTurf.turfPrice}
                 </p>

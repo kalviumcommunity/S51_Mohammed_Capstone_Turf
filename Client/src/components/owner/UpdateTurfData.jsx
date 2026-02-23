@@ -15,6 +15,23 @@ const UpdateTurfData = ({setTurfs}) => {
   const [turfImagesURL, setTurfImages] = useState([]);
   const [isImagesDropZoneVisible, setIsImagesDropZoneVisible] = useState(true);
 
+  const [turfTimings, setTurfTimings] = useState([
+    { day: 'Monday', start: '', end: '' },
+    { day: 'Tuesday', start: '', end: '' },
+    { day: 'Wednesday', start: '', end: '' },
+    { day: 'Thursday', start: '', end: '' },
+    { day: 'Friday', start: '', end: '' },
+    { day: 'Saturday', start: '', end: '' },
+    { day: 'Sunday', start: '', end: '' },
+  ]);
+  
+  // Function to handle timing changes
+  const handleTimingChange = (index, field, value) => {
+    const updatedTimings = [...turfTimings];
+    updatedTimings[index][field] = value;
+    setTurfTimings(updatedTimings);
+  };
+
   const onThumbnailDrop = async (acceptedFiles) => {
     try {
       const thumbnail = acceptedFiles[0];
@@ -78,15 +95,22 @@ const UpdateTurfData = ({setTurfs}) => {
       setValue('address', selectedTurf.address || '');
       setValue('turfDistrict', selectedTurf.turfDistrict || '');
       setValue('turfTimings', selectedTurf.turfTimings || '');
+      setValue('turfTimings', selectedTurf.turfTimings || []);
+      setTurfTimings(selectedTurf.turfTimings || turfTimings);
+      setThumbnailURL(selectedTurf.turfThumbnail || null);
+      setTurfImages(selectedTurf.turfImages || []);
     }
   }, [selectedTurf, setValue]);
 
   const onSubmit = async (data) => {
     try {
-      console.log(selectedTurf)
       data._id = selectedTurf._id;
-      data.turfImages = turfImagesURL;  
+      data.turfImages = turfImagesURL;
       data.turfThumbnail = thumbnailURL;
+      data.turfTimings = turfTimings;
+      data.email = data.email;
+      data.turfSportCategory = data.turfSportCategory;
+
       const response = await axios.put(
         'http://localhost:3000/api/updateTurfData',
         {data},
@@ -162,6 +186,24 @@ const UpdateTurfData = ({setTurfs}) => {
             </div>
 
             <div className="mb-4">
+              <label htmlFor="email" className="block text-gray-700 text-sm font-medium mb-2">Email</label>
+              <input
+                type="email"
+                id="email"
+                {...register('email', {
+                  required: "Email is necessary",
+                  pattern: {
+                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                    message: "Enter a valid email address"
+                  }
+                })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              {errors.email && <p className="text-red-500">{errors.email.message}</p>}
+            </div>
+
+
+            <div className="mb-4">
               <label className="block text-gray-700 text-sm font-medium mb-2">Description</label>
               <textarea
                 {...register('turfDescription')}
@@ -197,24 +239,47 @@ const UpdateTurfData = ({setTurfs}) => {
             </div>
 
             <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-medium mb-2">District</label>
-              <input
-                type='text'
-                {...register('turfDistrict')}
-                className='w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500'
-              />
+              <label htmlFor="turfSportCategory" className="block text-gray-700 text-sm font-medium mb-2">Sport Category</label>
+              <select
+                id="turfSportCategory"
+                {...register('turfSportCategory', { required: "Sport category is necessary" })}
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select a category</option>
+                <option value="cricket">Cricket</option>
+                <option value="basketball">Basketball</option>
+                <option value="badminton">Badminton</option>
+                <option value="swimming">Swimming</option>
+                <option value="football">Football</option>
+              </select>
+              {errors.turfSportCategory && <p className="text-red-500">{errors.turfSportCategory.message}</p>}
             </div>
+
 
             <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-medium mb-2">Timings</label>
-              <input
-                type='text'
-                {...register('turfTimings')}
-                className='w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500'
-              />
+              <label className="block text-gray-700 text-sm font-medium mb-2">Turf Timings</label>
+              {turfTimings.map((timing, index) => (
+                <div key={index} className="flex items-center mb-2">
+                  <span className="w-1/4">{timing.day}</span>
+                  <input
+                    type="time"
+                    value={timing.start}
+                    className="w-1/3 px-2 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onChange={(e) => handleTimingChange(index, 'start', e.target.value)}
+                  />
+                  <span className="mx-2">to</span>
+                  <input
+                    type="time"
+                    value={timing.end}
+                    className="w-1/3 px-2 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onChange={(e) => handleTimingChange(index, 'end', e.target.value)}
+                  />
+                </div>
+              ))}
             </div>
-          </div>
 
+
+          </div>
           <button
             type='submit'
             className='mt-6 px-6 py-3 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500'
@@ -231,7 +296,7 @@ const UpdateTurfData = ({setTurfs}) => {
         </form>
       </div>
     </div>
-  );
-};
+    );
+  };
 
 export default UpdateTurfData;
