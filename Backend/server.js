@@ -2,12 +2,16 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const connectDB = require('./dbConfig'); 
-const appRoutes = require('./routes/appRoutes');
+const connectDB = require('./config/dbConfig'); 
+const errorMiddleware = require('./middlewares/errorMiddleware');
+
+// Route Imports
+const authRoutes = require('./routes/authRoutes');
+const turfRoutes = require('./routes/turfRoutes');
+const bookingRoutes = require('./routes/bookingRoutes');
 
 const port = 3000;
 const app = express();
-
 
 app.use(cors({
     origin: 'http://localhost:5173', 
@@ -17,13 +21,18 @@ app.use(cors({
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use('/api', appRoutes)
 
-
+// API Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/turfs', turfRoutes);
+app.use('/api/bookings', bookingRoutes);
 
 app.get('/ping', (req, res) => {
     res.send('pong');
 });
+
+// Centralized Error Handling
+app.use(errorMiddleware);
 
 const Starter = async () => {
     try {

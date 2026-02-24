@@ -1,28 +1,33 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { NavLink, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { login, clearError } from '../features/auth/authSlice';
+import { toast } from 'react-toastify';
 import GoogleAuth from './GoogleAuth';
-import Cookies from 'js-cookie';
-import { useAuth } from './UserProvider';
-
 
 const Login = () => {
-
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const { loading, error, isAuthenticated, user } = useSelector((state) => state.auth);
     const { register, handleSubmit, formState: { errors } } = useForm();
-    const {user, loginUser} = useAuth()
 
     useEffect(() => {
-        if(user){
-            Cookies.remove('email')
+        if (isAuthenticated) {
+            if (user?.role === 'owner') navigate('/ownerHome');
+            else navigate('/userHome');
         }
-    },[])
+    }, [isAuthenticated, user, navigate]);
 
-    const onSubmit = async (data) => {
-        const email = data.email;
-        const password = data.password 
-        const userInfo = {email, password}
-        loginUser(userInfo)
+    useEffect(() => {
+        if (error) {
+            toast.error(error);
+            dispatch(clearError());
+        }
+    }, [error, dispatch]);
 
+    const onSubmit = (data) => {
+        dispatch(login({ email: data.email, password: data.password }));
     };
 
     return (
@@ -66,9 +71,10 @@ const Login = () => {
             </div>
             <button
                 type="submit"
-                className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition duration-200"
+                disabled={loading}
+                className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition duration-200 disabled:bg-blue-300"
             >
-                Submit
+                {loading ? 'Logging in...' : 'Submit'}
             </button>
             </form>
             <div className="mt-4 text-center">
