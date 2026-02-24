@@ -11,13 +11,8 @@ exports.isAuthenticatedUser = async (req, res, next) => {
         }
 
         const token = authHeader.split(' ')[1];
-
-        // For Appwrite JWT, we might just decode it or verify if we have a secret
-        // Assuming JWT_SECRET is used for custom backend verification if needed, 
-        // or just decoding for appwriteId if Appwrite verified it.
-        // For production, you'd typically verify against Appwrite SDK or public key.
         const decoded = jwt.decode(token); 
-        
+
         if (!decoded || !decoded.userId) {
             return next(new ErrorHandler('Invalid Token', 401));
         }

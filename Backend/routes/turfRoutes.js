@@ -11,11 +11,10 @@ const {
 const { isAuthenticatedUser, authorizeRoles } = require('../middlewares/authMiddleware');
 
 router.get('/all', getAllTurfs);
-router.get('/:id', getSingleTurf);
-
 // Protected routes
-router.post('/upload', isAuthenticatedUser, authorizeRoles('owner'), uploadTurf);
 router.get('/owner', isAuthenticatedUser, authorizeRoles('owner'), getOwnerTurfs);
+router.post('/upload', isAuthenticatedUser, authorizeRoles('owner'), uploadTurf);
+router.get('/:id', getSingleTurf);
 router.put('/:id', isAuthenticatedUser, authorizeRoles('owner'), updateTurf);
 router.delete('/:id', isAuthenticatedUser, authorizeRoles('owner'), deleteTurf);
 

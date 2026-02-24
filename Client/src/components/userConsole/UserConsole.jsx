@@ -6,7 +6,7 @@ import {
   Search, Activity, LogOut, User, Compass,
   Calendar as CalendarIcon, Filter
 } from 'lucide-react';
-// import chatbotimage from '../assets/chatbot.png';
+import chatbotimage from '../../assets/chatbot.png';
 import TurfExplorer from './TurfExplorer';
 
 const SPORTS = ['All', 'Football', 'Cricket', 'Badminton', 'Basketball', 'Tennis'];

@@ -28,18 +28,24 @@ function App() {
       try {
         const appwriteUser = await account.get();
         if (appwriteUser) {
-          // If Appwrite session exists, fetch profile from MongoDB
+          // 1. Get a fresh JWT from Appwrite
+          const jwtResponse = await account.createJWT();
+          const token = jwtResponse.jwt;
+          localStorage.setItem('token', token);
+
+          // 2. Fetch profile from MongoDB
           const response = await API.get('/auth/me');
           if (response.data.success) {
             dispatch(setUser(response.data.user));
           } else {
             // Appwrite session exists but MongoDB user doesn't or sync failed
             await account.deleteSession('current');
+            localStorage.removeItem('token');
           }
         }
       } catch (error) {
         // Appwrite account.get() throws a 401 code if no session exists
-        // This is expected behavior for unauthenticated users.
+        localStorage.removeItem('token');
       }
     };
     checkSession();

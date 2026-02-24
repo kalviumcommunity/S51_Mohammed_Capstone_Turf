@@ -11,7 +11,13 @@ const AssetControl = ({ onTabChange }) => {
   const [deletingTurfId, setDeletingTurfId] = useState(null);
 
   useEffect(() => {
-    dispatch(fetchOwnerTurfs());
+    const fetchAssets = async () => {
+      const result = await dispatch(fetchOwnerTurfs());
+      if (fetchOwnerTurfs.rejected.match(result)) {
+        toast.error(result.payload || 'Failed to sync assets with command center.');
+      }
+    };
+    fetchAssets();
   }, [dispatch]);
 
   const handleSaveEdit = async (e) => {
