@@ -1,13 +1,10 @@
-import {useEffect} from 'react';
 import { Client, Account, OAuthProvider } from "appwrite";
-import { useAuth } from './UserProvider';
-import Cookies from 'js-cookie';
-import { toast } from 'react-toastify';
+import { useSelector } from 'react-redux';
 
 const GoogleAuth = () => {
   const AppwriteId = import.meta.env.VITE_APPWRITE_ID;
   const AppwriteEndpoint = import.meta.env.VITE_APPWRITE_ENDPOINT;
-  const { user, setUser } = useAuth();
+  const { isAuthenticated } = useSelector((state) => state.auth);
 
   const client = new Client()
     .setEndpoint(AppwriteEndpoint)
@@ -17,39 +14,22 @@ const GoogleAuth = () => {
 
   const handleGoogleLogin = async () => {
     try {
-      if (user) {
+      // Clear any existing session first
+      try {
         await account.deleteSession('current');
-        setUser(null);
-        Cookies.remove('email');
-        Cookies.remove('userID');
+      } catch (e) {
+        // Ignore if no session
       }
 
-        account.createOAuth2Session(
+      account.createOAuth2Session(
         OAuthProvider.Google,
-        'http://localhost:5173/userHome',
-        'http://localhost:5173/'
+        window.location.origin + '/userHome',
+        window.location.origin + '/login'
       );
     } catch (error) {
-      console.log(error.message);
+      console.error("Google Auth Redirect Error:", error.message);
     }
   };
-
-  useEffect(() => {
-    const checkUserStatus = async () => {
-      try {
-        const accountDetails = await account.get();
-        if (accountDetails) {
-          Cookies.set('userID', accountDetails.$id);
-          Cookies.set('email', accountDetails.email);
-          setUser(accountDetails);
-          // toast("Login successful");
-        }
-      } catch (error) {
-        console.log("No active session found");
-      }
-    };
-    checkUserStatus();
-  }, []);
 
   return (
     <button
